@@ -6,7 +6,6 @@ import { motion } from "framer-motion";
 import { Canvas } from "@react-three/fiber";
 import {
   OrbitControls,
-  Environment,
   Float,
   Sphere,
   MeshDistortMaterial,
@@ -112,7 +111,11 @@ const Scene3D = () => {
       <directionalLight position={[10, 10, 5]} intensity={1} />
       <pointLight position={[-10, -10, -10]} intensity={0.5} color="#6366f1" />
 
-      <Environment preset="city" />
+      {/* Simple gradient background instead of HDR environment */}
+      <mesh position={[0, 0, -10]} scale={[50, 50, 1]}>
+        <planeGeometry />
+        <meshBasicMaterial color="#0f0f23" />
+      </mesh>
 
       <Phone3D />
       <Card3D position={[-3, 1, -1]} color="#6366f1" text="SHOP" />
