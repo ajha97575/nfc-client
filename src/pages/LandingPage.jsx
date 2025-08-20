@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Canvas, useLoader } from "@react-three/fiber";
+import { Canvas } from "@react-three/fiber";
 import {
   OrbitControls,
   Environment,
@@ -13,7 +13,6 @@ import {
   Box,
   Text,
 } from "@react-three/drei";
-import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader";
 import { updatePageMeta, scrollToTop } from "../utils/pageUtils.js";
 import "./LandingPage.css";
 
@@ -105,15 +104,7 @@ const FloatingSpheres = () => {
   );
 };
 
-// Custom Environment loader to use local HDR file
-const CustomEnvironment = () => {
-  // Load HDR file from public/images/myCustomEnv.hdr
-  const hdrTexture = useLoader(RGBELoader, "/images/myCustomEnv.hdr");
-
-  return <Environment background={true} map={hdrTexture} />;
-};
-
-// 3D Scene Component with custom HDR environment
+// 3D Scene Component
 const Scene3D = () => {
   return (
     <Canvas camera={{ position: [0, 0, 8], fov: 45 }}>
@@ -121,8 +112,7 @@ const Scene3D = () => {
       <directionalLight position={[10, 10, 5]} intensity={1} />
       <pointLight position={[-10, -10, -10]} intensity={0.5} color="#6366f1" />
 
-      {/* Use Custom HDR environment */}
-      <CustomEnvironment />
+      <Environment preset="city" />
 
       <Phone3D />
       <Card3D position={[-3, 1, -1]} color="#6366f1" text="SHOP" />
@@ -365,11 +355,12 @@ const LandingPage = () => {
                 viewport={{ once: true }}
                 className="feature-card"
               >
-                <div className={`feature-icon ${feature.glowClass}`}>
-                  {feature.icon}
+                <div className={`feature-card-glow ${feature.glowClass}`}></div>
+                <div className="feature-card-content glass-card">
+                  <div className="feature-icon">{feature.icon}</div>
+                  <h3 className="feature-title">{feature.title}</h3>
+                  <p className="feature-description">{feature.description}</p>
                 </div>
-                <h3 className="feature-title">{feature.title}</h3>
-                <p className="feature-description">{feature.description}</p>
               </motion.div>
             ))}
           </div>
@@ -378,49 +369,130 @@ const LandingPage = () => {
 
       {/* Stats Section */}
       <section className="section bg-gradient-stats">
-        <div className="section-container stats-container">
-          {stats.map((stat, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: index * 0.1 }}
-              viewport={{ once: true }}
-              className="stat-card"
-            >
-              <div className="stat-icon">{stat.icon}</div>
-              <div className="stat-number">{stat.number}</div>
-              <div className="stat-label">{stat.label}</div>
-            </motion.div>
-          ))}
+        <div className="section-container">
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+            className="section-header"
+          >
+            <h2 className="section-title section-title-blue">
+              Trusted by Thousands
+            </h2>
+          </motion.div>
+
+          <div className="stats-grid">
+            {stats.map((stat, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, scale: 0.5 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                viewport={{ once: true }}
+                className="stat-card"
+              >
+                <div className="stat-icon">{stat.icon}</div>
+                <div className="stat-number">{stat.number}</div>
+                <div className="stat-label">{stat.label}</div>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* How It Works Section */}
-      <section className="section bg-gradient-steps">
-        <div className="section-container steps-container">
-          {steps.map(
-            (
-              { step, title, description, icon, glowClass, numberClass },
-              index
-            ) => (
+      <section className="section">
+        <div className="section-container">
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+            className="section-header"
+          >
+            <h2 className="section-title section-title-green">How It Works</h2>
+            <p className="section-description">
+              Shopping made simple in just 3 easy steps
+            </p>
+          </motion.div>
+
+          <div className="how-it-works-grid">
+            {steps.map((step, index) => (
               <motion.div
                 key={index}
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: index * 0.1 }}
+                initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.8, delay: index * 0.2 }}
                 viewport={{ once: true }}
-                className={`step-card ${glowClass}`}
+                className="step-card"
               >
-                <div className={`step-number ${numberClass}`}>{step}</div>
-                <div className="step-icon">{icon}</div>
-                <h3 className="step-title">{title}</h3>
-                <p className="step-description">{description}</p>
+                <div className={`step-card-glow ${step.glowClass}`}></div>
+                <div className="step-card-content glass-card">
+                  <div className={`step-number ${step.numberClass}`}>
+                    {step.step}
+                  </div>
+                  <div className="step-icon">{step.icon}</div>
+                  <h3 className="step-title">{step.title}</h3>
+                  <p className="step-description">{step.description}</p>
+                </div>
               </motion.div>
-            )
-          )}
+            ))}
+          </div>
         </div>
       </section>
+
+      {/* CTA Section */}
+      <section className="section cta-section">
+        <div className="section-container">
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+            className="section-header"
+          >
+            <h2 className="section-title section-title-yellow">
+              Ready to Start?
+            </h2>
+            <p className="section-description">
+              Join thousands of users who are already enjoying the future of
+              shopping. Experience the magic today!
+            </p>
+
+            <div className="cta-buttons">
+              <Link to="/scanner" className="cta-button-primary">
+                <span>🛒 Start Shopping Now</span>
+              </Link>
+
+              <Link to="/nfc-manager" className="cta-button-secondary">
+                <span>📱 Explore NFC</span>
+              </Link>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="footer">
+        <div className="section-container">
+          <div className="footer-content">
+            <div className="footer-title">Tip Tap Pay</div>
+            <p className="footer-description">
+              The future of digital shopping is here
+            </p>
+            <div className="footer-icons">
+              <span className="footer-icon">📱</span>
+              <span className="footer-icon">🛒</span>
+              <span className="footer-icon">💳</span>
+              <span className="footer-icon">⚡</span>
+            </div>
+            <div className="footer-copyright">
+              © 2024 Tip Tap Pay. Made with ❤️ for the future of shopping.
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
