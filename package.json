@@ -10,13 +10,14 @@
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0"
   },
   "dependencies": {
+    "framer-motion": "^12.23.12",
+    "html5-qrcode": "^2.3.8",
+    "lucide-react": "^0.454.0",
+    "qr-scanner": "^1.4.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^6.28.0",
     "react-qr-scanner": "^1.0.0-alpha.11",
-    "qr-scanner": "^1.4.2",
-    "html5-qrcode": "^2.3.8",
-    "lucide-react": "^0.454.0"
+    "react-router-dom": "^6.28.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.66",
