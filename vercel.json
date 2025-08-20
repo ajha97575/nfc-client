@@ -2,28 +2,17 @@
   "version": 2,
   "builds": [
     {
-      "src": "client/package.json",
+      "src": "package.json",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "dist"
+        "distDir": "build"
       }
-    }
-  ],
-  "headers": [
-    {
-      "source": "/:path*.(js|css|ico|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot)",
-      "headers": [
-        {
-          "key": "cache-control",
-          "value": "max-age=31536000"
-        }
-      ]
     }
   ],
   "rewrites": [
     {
       "source": "/(.*)",
-      "destination": "/client/dist/index.html"
+      "destination": "/build/index.html"
     }
   ]
 }
