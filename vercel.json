@@ -7,10 +7,6 @@
       "config": {
         "distDir": "dist"
       }
-    },
-    {
-      "src": "server/server.js",
-      "use": "@vercel/node"
     }
   ],
   "headers": [
@@ -26,15 +22,8 @@
   ],
   "rewrites": [
     {
-      "source": "/api/(.*)",
-      "destination": "/server/server.js"
-    },
-    {
       "source": "/(.*)",
       "destination": "/client/dist/index.html"
     }
-  ],
-  "env": {
-    "MONGODB_URI": "@mongodb_uri"
-  }
+  ]
 }
