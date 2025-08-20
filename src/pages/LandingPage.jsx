@@ -14,6 +14,7 @@ import {
 } from "@react-three/drei";
 import { updatePageMeta, scrollToTop } from "../utils/pageUtils.js";
 import "./LandingPage.css";
+import * as THREE from "three";
 
 // 3D Phone Component (Simplified)
 const Phone3D = () => {
@@ -111,10 +112,27 @@ const Scene3D = () => {
       <directionalLight position={[10, 10, 5]} intensity={1} />
       <pointLight position={[-10, -10, -10]} intensity={0.5} color="#6366f1" />
 
-      {/* Simple gradient background instead of HDR environment */}
       <mesh position={[0, 0, -10]} scale={[50, 50, 1]}>
         <planeGeometry />
-        <meshBasicMaterial color="#bd0d0dff" />
+        <meshBasicMaterial>
+          <primitive
+            object={(() => {
+              const canvas = document.createElement("canvas");
+              canvas.width = 512;
+              canvas.height = 512;
+              const ctx = canvas.getContext("2d");
+              const gradient = ctx.createLinearGradient(0, 0, 512, 512);
+              gradient.addColorStop(0, "#0f172a");
+              gradient.addColorStop(0.5, "#140024f3");
+              gradient.addColorStop(1, "#0f172a");
+              ctx.fillStyle = gradient;
+              ctx.fillRect(0, 0, 512, 512);
+              const texture = new THREE.CanvasTexture(canvas);
+              return texture;
+            })()}
+            attach="map"
+          />
+        </meshBasicMaterial>
       </mesh>
 
       <Phone3D />
@@ -123,10 +141,10 @@ const Scene3D = () => {
       <FloatingSpheres />
 
       <OrbitControls
-        enableZoom={false}
-        enablePan={false}
+        enableZoom={true}
+        enablePan={true}
         autoRotate
-        autoRotateSpeed={0.5}
+        autoRotateSpeed={0}
       />
     </Canvas>
   );
