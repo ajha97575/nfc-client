@@ -114,7 +114,7 @@ const Scene3D = () => {
       {/* Simple gradient background instead of HDR environment */}
       <mesh position={[0, 0, -10]} scale={[50, 50, 1]}>
         <planeGeometry />
-        <meshBasicMaterial color="#0f0f23" />
+        <meshBasicMaterial color="#bd0d0dff" />
       </mesh>
 
       <Phone3D />
