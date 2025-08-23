@@ -1,6 +1,3 @@
-import toast from "react-hot-toast"
+import toast from "react-hot-toast";
 
-
-
-// Default export
-export default toastManager
+export default toast;

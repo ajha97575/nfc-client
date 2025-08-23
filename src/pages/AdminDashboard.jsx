@@ -1,18 +1,24 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Link } from "react-router-dom"
-import { getAllProducts, updateProductStock, addProduct, getAllOrders } from "../utils/productData.js"
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import {
+  getAllProducts,
+  updateProductStock,
+  addProduct,
+  getAllOrders,
+} from "../utils/productData.js";
+import toast from "../utils/toastUtils"; // ✅ Added import
 
 const AdminDashboard = () => {
-  const [products, setProducts] = useState({})
-  const [orders, setOrders] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState("overview")
-  const [searchTerm, setSearchTerm] = useState("")
-  const [categoryFilter, setCategoryFilter] = useState("all")
-  const [stockFilter, setStockFilter] = useState("all")
-  const [editingProduct, setEditingProduct] = useState(null)
+  const [products, setProducts] = useState({});
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("overview");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [stockFilter, setStockFilter] = useState("all");
+  const [editingProduct, setEditingProduct] = useState(null);
   const [newProduct, setNewProduct] = useState({
     id: "",
     name: "",
@@ -21,57 +27,72 @@ const AdminDashboard = () => {
     category: "",
     stock: "",
     image: "/placeholder.svg?height=100&width=100",
-  })
-  const [showAddProduct, setShowAddProduct] = useState(false)
-  const [bulkUpdateMode, setBulkUpdateMode] = useState(false)
-  const [selectedProducts, setSelectedProducts] = useState(new Set())
-  const [bulkStockValue, setBulkStockValue] = useState("")
+  });
+  const [showAddProduct, setShowAddProduct] = useState(false);
+  const [bulkUpdateMode, setBulkUpdateMode] = useState(false);
+  const [selectedProducts, setSelectedProducts] = useState(new Set());
+  const [bulkStockValue, setBulkStockValue] = useState("");
 
   useEffect(() => {
-    fetchData()
-  }, [])
+    fetchData();
+  }, []);
 
   const fetchData = async () => {
     try {
-      setLoading(true)
-      const [productsData, ordersData] = await Promise.all([getAllProducts(), getAllOrders()])
-      setProducts(productsData || {})
-      setOrders(ordersData || [])
+      setLoading(true);
+      const [productsData, ordersData] = await Promise.all([
+        getAllProducts(),
+        getAllOrders(),
+      ]);
+      setProducts(productsData || {});
+      setOrders(ordersData || []);
+
+      // ✅ Low stock notification check (≤ 5 units)
+      const lowStockItems = Object.values(productsData || {}).filter(
+        (p) => p.stock <= 5
+      );
+      if (lowStockItems.length > 0) {
+        lowStockItems.forEach((item) => {
+          toast.error(`⚠️ ${item.name} stock is low (${item.stock} left)`, {
+            duration: 4000,
+          });
+        });
+      }
     } catch (error) {
-      console.error("Error fetching data:", error)
+      console.error("Error fetching data:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleStockUpdate = async (productId, newStock) => {
     try {
-      await updateProductStock(productId, Number.parseInt(newStock))
+      await updateProductStock(productId, Number.parseInt(newStock));
       setProducts((prev) => ({
         ...prev,
         [productId]: {
           ...prev[productId],
           stock: Number.parseInt(newStock),
         },
-      }))
-      setEditingProduct(null)
+      }));
+      setEditingProduct(null);
     } catch (error) {
-      console.error("Error updating stock:", error)
-      alert("Failed to update stock")
+      console.error("Error updating stock:", error);
+      toast.error("❌ Failed to update stock");
     }
-  }
+  };
 
   const handleAddProduct = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
     try {
       const productData = {
         ...newProduct,
         price: Number.parseFloat(newProduct.price),
         stock: Number.parseInt(newProduct.stock),
-      }
+      };
 
-      await addProduct(productData)
-      await fetchData() // Refresh data
+      await addProduct(productData);
+      await fetchData(); // Refresh data
       setNewProduct({
         id: "",
         name: "",
@@ -80,64 +101,72 @@ const AdminDashboard = () => {
         category: "",
         stock: "",
         image: "/placeholder.svg?height=100&width=100",
-      })
-      setShowAddProduct(false)
+      });
+      setShowAddProduct(false);
+      toast.success("✅ Product added successfully");
     } catch (error) {
-      console.error("Error adding product:", error)
-      alert("Failed to add product")
+      console.error("Error adding product:", error);
+      toast.error("❌ Failed to add product");
     }
-  }
+  };
 
   const handleBulkStockUpdate = async () => {
     if (!bulkStockValue || selectedProducts.size === 0) {
-      alert("Please select products and enter a stock value")
-      return
+      toast.error("⚠️ Please select products and enter a stock value");
+      return;
     }
 
     try {
       const updatePromises = Array.from(selectedProducts).map((productId) =>
-        updateProductStock(productId, Number.parseInt(bulkStockValue)),
-      )
+        updateProductStock(productId, Number.parseInt(bulkStockValue))
+      );
 
-      await Promise.all(updatePromises)
-      await fetchData() // Refresh data
-      setSelectedProducts(new Set())
-      setBulkStockValue("")
-      setBulkUpdateMode(false)
+      await Promise.all(updatePromises);
+      await fetchData(); // Refresh data
+      setSelectedProducts(new Set());
+      setBulkStockValue("");
+      setBulkUpdateMode(false);
+      toast.success("✅ Bulk stock updated successfully");
     } catch (error) {
-      console.error("Error bulk updating stock:", error)
-      alert("Failed to update stock for some products")
+      console.error("Error bulk updating stock:", error);
+      toast.error("❌ Failed to update stock for some products");
     }
-  }
+  };
 
   const getFilteredProducts = () => {
     return Object.values(products).filter((product) => {
       const matchesSearch =
         product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.id.toLowerCase().includes(searchTerm.toLowerCase())
-      const matchesCategory = categoryFilter === "all" || product.category === categoryFilter
+        product.id.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesCategory =
+        categoryFilter === "all" || product.category === categoryFilter;
       const matchesStock =
         stockFilter === "all" ||
         (stockFilter === "low" && product.stock <= 10) ||
         (stockFilter === "out" && product.stock === 0) ||
-        (stockFilter === "available" && product.stock > 0)
-      return matchesSearch && matchesCategory && matchesStock
-    })
-  }
+        (stockFilter === "available" && product.stock > 0);
+      return matchesSearch && matchesCategory && matchesStock;
+    });
+  };
 
   const getCategories = () => {
-    const categories = new Set(Object.values(products).map((p) => p.category))
-    return Array.from(categories)
-  }
+    const categories = new Set(Object.values(products).map((p) => p.category));
+    return Array.from(categories);
+  };
 
   const getAnalytics = () => {
-    const productList = Object.values(products)
-    const totalProducts = productList.length
-    const totalStock = productList.reduce((sum, p) => sum + p.stock, 0)
-    const lowStockProducts = productList.filter((p) => p.stock <= 10).length
-    const outOfStockProducts = productList.filter((p) => p.stock === 0).length
-    const totalRevenue = orders.reduce((sum, order) => sum + (order.total || 0), 0)
-    const completedOrders = orders.filter((o) => o.status === "completed").length
+    const productList = Object.values(products);
+    const totalProducts = productList.length;
+    const totalStock = productList.reduce((sum, p) => sum + p.stock, 0);
+    const lowStockProducts = productList.filter((p) => p.stock <= 10).length;
+    const outOfStockProducts = productList.filter((p) => p.stock === 0).length;
+    const totalRevenue = orders.reduce(
+      (sum, order) => sum + (order.total || 0),
+      0
+    );
+    const completedOrders = orders.filter(
+      (o) => o.status === "completed"
+    ).length;
 
     return {
       totalProducts,
@@ -147,11 +176,11 @@ const AdminDashboard = () => {
       totalRevenue,
       completedOrders,
       totalOrders: orders.length,
-    }
-  }
+    };
+  };
 
-  const analytics = getAnalytics()
-  const filteredProducts = getFilteredProducts()
+  const analytics = getAnalytics();
+  const filteredProducts = getFilteredProducts();
 
   if (loading) {
     return (
@@ -165,7 +194,7 @@ const AdminDashboard = () => {
           <p>Loading dashboard...</p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -208,7 +237,10 @@ const AdminDashboard = () => {
               background: activeTab === tab.id ? "#007bff" : "transparent",
               color: activeTab === tab.id ? "white" : "#666",
               border: "none",
-              borderBottom: activeTab === tab.id ? "3px solid #007bff" : "3px solid transparent",
+              borderBottom:
+                activeTab === tab.id
+                  ? "3px solid #007bff"
+                  : "3px solid transparent",
               cursor: "pointer",
               fontWeight: activeTab === tab.id ? "600" : "400",
               whiteSpace: "nowrap",
@@ -240,8 +272,16 @@ const AdminDashboard = () => {
                 textAlign: "center",
               }}
             >
-              <div style={{ fontSize: "2.5rem", marginBottom: "0.5rem" }}>📦</div>
-              <div style={{ fontSize: "2rem", fontWeight: "bold", marginBottom: "0.5rem" }}>
+              <div style={{ fontSize: "2.5rem", marginBottom: "0.5rem" }}>
+                📦
+              </div>
+              <div
+                style={{
+                  fontSize: "2rem",
+                  fontWeight: "bold",
+                  marginBottom: "0.5rem",
+                }}
+              >
                 {analytics.totalProducts}
               </div>
               <div>Total Products</div>
@@ -256,8 +296,18 @@ const AdminDashboard = () => {
                 textAlign: "center",
               }}
             >
-              <div style={{ fontSize: "2.5rem", marginBottom: "0.5rem" }}>📊</div>
-              <div style={{ fontSize: "2rem", fontWeight: "bold", marginBottom: "0.5rem" }}>{analytics.totalStock}</div>
+              <div style={{ fontSize: "2.5rem", marginBottom: "0.5rem" }}>
+                📊
+              </div>
+              <div
+                style={{
+                  fontSize: "2rem",
+                  fontWeight: "bold",
+                  marginBottom: "0.5rem",
+                }}
+              >
+                {analytics.totalStock}
+              </div>
               <div>Total Stock Units</div>
             </div>
 
@@ -270,8 +320,16 @@ const AdminDashboard = () => {
                 textAlign: "center",
               }}
             >
-              <div style={{ fontSize: "2.5rem", marginBottom: "0.5rem" }}>⚠️</div>
-              <div style={{ fontSize: "2rem", fontWeight: "bold", marginBottom: "0.5rem" }}>
+              <div style={{ fontSize: "2.5rem", marginBottom: "0.5rem" }}>
+                ⚠️
+              </div>
+              <div
+                style={{
+                  fontSize: "2rem",
+                  fontWeight: "bold",
+                  marginBottom: "0.5rem",
+                }}
+              >
                 {analytics.lowStockProducts}
               </div>
               <div>Low Stock Alerts</div>
@@ -286,8 +344,16 @@ const AdminDashboard = () => {
                 textAlign: "center",
               }}
             >
-              <div style={{ fontSize: "2.5rem", marginBottom: "0.5rem" }}>🚫</div>
-              <div style={{ fontSize: "2rem", fontWeight: "bold", marginBottom: "0.5rem" }}>
+              <div style={{ fontSize: "2.5rem", marginBottom: "0.5rem" }}>
+                🚫
+              </div>
+              <div
+                style={{
+                  fontSize: "2rem",
+                  fontWeight: "bold",
+                  marginBottom: "0.5rem",
+                }}
+              >
                 {analytics.outOfStockProducts}
               </div>
               <div>Out of Stock</div>
@@ -302,8 +368,16 @@ const AdminDashboard = () => {
                 textAlign: "center",
               }}
             >
-              <div style={{ fontSize: "2.5rem", marginBottom: "0.5rem" }}>💰</div>
-              <div style={{ fontSize: "2rem", fontWeight: "bold", marginBottom: "0.5rem" }}>
+              <div style={{ fontSize: "2.5rem", marginBottom: "0.5rem" }}>
+                💰
+              </div>
+              <div
+                style={{
+                  fontSize: "2rem",
+                  fontWeight: "bold",
+                  marginBottom: "0.5rem",
+                }}
+              >
                 ₹{analytics.totalRevenue.toFixed(2)}
               </div>
               <div>Total Revenue</div>
@@ -318,8 +392,16 @@ const AdminDashboard = () => {
                 textAlign: "center",
               }}
             >
-              <div style={{ fontSize: "2.5rem", marginBottom: "0.5rem" }}>📋</div>
-              <div style={{ fontSize: "2rem", fontWeight: "bold", marginBottom: "0.5rem" }}>
+              <div style={{ fontSize: "2.5rem", marginBottom: "0.5rem" }}>
+                📋
+              </div>
+              <div
+                style={{
+                  fontSize: "2rem",
+                  fontWeight: "bold",
+                  marginBottom: "0.5rem",
+                }}
+              >
                 {analytics.completedOrders}
               </div>
               <div>Completed Orders</div>
@@ -417,7 +499,9 @@ const AdminDashboard = () => {
                 marginBottom: "2rem",
               }}
             >
-              <h3 style={{ color: "#856404", marginBottom: "1rem" }}>⚠️ Low Stock Alerts</h3>
+              <h3 style={{ color: "#856404", marginBottom: "1rem" }}>
+                ⚠️ Low Stock Alerts
+              </h3>
               <div style={{ display: "grid", gap: "0.5rem" }}>
                 {Object.values(products)
                   .filter((p) => p.stock <= 10)
@@ -441,7 +525,9 @@ const AdminDashboard = () => {
                           fontWeight: "600",
                         }}
                       >
-                        {product.stock === 0 ? "OUT OF STOCK" : `${product.stock} left`}
+                        {product.stock === 0
+                          ? "OUT OF STOCK"
+                          : `${product.stock} left`}
                       </span>
                     </div>
                   ))}
@@ -473,7 +559,15 @@ const AdminDashboard = () => {
               }}
             >
               <div>
-                <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "600" }}>Search Products</label>
+                <label
+                  style={{
+                    display: "block",
+                    marginBottom: "0.5rem",
+                    fontWeight: "600",
+                  }}
+                >
+                  Search Products
+                </label>
                 <input
                   type="text"
                   placeholder="Search by name or ID..."
@@ -489,7 +583,15 @@ const AdminDashboard = () => {
               </div>
 
               <div>
-                <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "600" }}>Category</label>
+                <label
+                  style={{
+                    display: "block",
+                    marginBottom: "0.5rem",
+                    fontWeight: "600",
+                  }}
+                >
+                  Category
+                </label>
                 <select
                   value={categoryFilter}
                   onChange={(e) => setCategoryFilter(e.target.value)}
@@ -510,7 +612,15 @@ const AdminDashboard = () => {
               </div>
 
               <div>
-                <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "600" }}>Stock Status</label>
+                <label
+                  style={{
+                    display: "block",
+                    marginBottom: "0.5rem",
+                    fontWeight: "600",
+                  }}
+                >
+                  Stock Status
+                </label>
                 <select
                   value={stockFilter}
                   onChange={(e) => setStockFilter(e.target.value)}
@@ -541,8 +651,17 @@ const AdminDashboard = () => {
                 marginBottom: "2rem",
               }}
             >
-              <h3 style={{ color: "#0d47a1", marginBottom: "1rem" }}>📦 Bulk Stock Update</h3>
-              <div style={{ display: "flex", gap: "1rem", alignItems: "center", flexWrap: "wrap" }}>
+              <h3 style={{ color: "#0d47a1", marginBottom: "1rem" }}>
+                📦 Bulk Stock Update
+              </h3>
+              <div
+                style={{
+                  display: "flex",
+                  gap: "1rem",
+                  alignItems: "center",
+                  flexWrap: "wrap",
+                }}
+              >
                 <input
                   type="number"
                   placeholder="New stock quantity"
@@ -560,20 +679,26 @@ const AdminDashboard = () => {
                   disabled={selectedProducts.size === 0 || !bulkStockValue}
                   style={{
                     padding: "0.75rem 1.5rem",
-                    background: selectedProducts.size === 0 || !bulkStockValue ? "#ccc" : "#007bff",
+                    background:
+                      selectedProducts.size === 0 || !bulkStockValue
+                        ? "#ccc"
+                        : "#007bff",
                     color: "white",
                     border: "none",
                     borderRadius: "8px",
-                    cursor: selectedProducts.size === 0 || !bulkStockValue ? "not-allowed" : "pointer",
+                    cursor:
+                      selectedProducts.size === 0 || !bulkStockValue
+                        ? "not-allowed"
+                        : "pointer",
                   }}
                 >
                   Update {selectedProducts.size} Products
                 </button>
                 <button
                   onClick={() => {
-                    setBulkUpdateMode(false)
-                    setSelectedProducts(new Set())
-                    setBulkStockValue("")
+                    setBulkUpdateMode(false);
+                    setSelectedProducts(new Set());
+                    setBulkStockValue("");
                   }}
                   style={{
                     padding: "0.75rem 1.5rem",
@@ -610,8 +735,8 @@ const AdminDashboard = () => {
                     product.stock === 0
                       ? "2px solid #dc3545"
                       : product.stock <= 10
-                        ? "2px solid #ffc107"
-                        : "1px solid #e9ecef",
+                      ? "2px solid #ffc107"
+                      : "1px solid #e9ecef",
                 }}
               >
                 {bulkUpdateMode && (
@@ -620,13 +745,13 @@ const AdminDashboard = () => {
                       type="checkbox"
                       checked={selectedProducts.has(product.id)}
                       onChange={(e) => {
-                        const newSelected = new Set(selectedProducts)
+                        const newSelected = new Set(selectedProducts);
                         if (e.target.checked) {
-                          newSelected.add(product.id)
+                          newSelected.add(product.id);
                         } else {
-                          newSelected.delete(product.id)
+                          newSelected.delete(product.id);
                         }
-                        setSelectedProducts(newSelected)
+                        setSelectedProducts(newSelected);
                       }}
                       style={{ marginRight: "0.5rem" }}
                     />
@@ -634,7 +759,14 @@ const AdminDashboard = () => {
                   </div>
                 )}
 
-                <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "1rem" }}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "1rem",
+                    marginBottom: "1rem",
+                  }}
+                >
                   <img
                     src={product.image || "/placeholder.svg"}
                     alt={product.name}
@@ -664,7 +796,12 @@ const AdminDashboard = () => {
                   <span style={{ fontWeight: "600" }}>Stock:</span>
                   <span
                     style={{
-                      color: product.stock === 0 ? "#dc3545" : product.stock <= 10 ? "#ffc107" : "#28a745",
+                      color:
+                        product.stock === 0
+                          ? "#dc3545"
+                          : product.stock <= 10
+                          ? "#ffc107"
+                          : "#28a745",
                       fontWeight: "bold",
                     }}
                   >
@@ -686,15 +823,16 @@ const AdminDashboard = () => {
                       }}
                       onKeyPress={(e) => {
                         if (e.key === "Enter") {
-                          handleStockUpdate(product.id, e.target.value)
+                          handleStockUpdate(product.id, e.target.value);
                         }
                       }}
                       autoFocus
                     />
                     <button
                       onClick={(e) => {
-                        const input = e.target.parentElement.querySelector("input")
-                        handleStockUpdate(product.id, input.value)
+                        const input =
+                          e.target.parentElement.querySelector("input");
+                        handleStockUpdate(product.id, input.value);
                       }}
                       style={{
                         padding: "0.5rem 1rem",
@@ -763,13 +901,26 @@ const AdminDashboard = () => {
                 boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
               }}
             >
-              <h3 style={{ marginBottom: "1.5rem" }}>📊 Products by Category</h3>
+              <h3 style={{ marginBottom: "1.5rem" }}>
+                📊 Products by Category
+              </h3>
               {getCategories().map((category) => {
-                const categoryProducts = Object.values(products).filter((p) => p.category === category)
-                const percentage = ((categoryProducts.length / Object.values(products).length) * 100).toFixed(1)
+                const categoryProducts = Object.values(products).filter(
+                  (p) => p.category === category
+                );
+                const percentage = (
+                  (categoryProducts.length / Object.values(products).length) *
+                  100
+                ).toFixed(1);
                 return (
                   <div key={category} style={{ marginBottom: "1rem" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        marginBottom: "0.5rem",
+                      }}
+                    >
                       <span>{category}</span>
                       <span>
                         {categoryProducts.length} ({percentage}%)
@@ -794,7 +945,7 @@ const AdminDashboard = () => {
                       />
                     </div>
                   </div>
-                )
+                );
               })}
             </div>
 
@@ -807,7 +958,9 @@ const AdminDashboard = () => {
                 boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
               }}
             >
-              <h3 style={{ marginBottom: "1.5rem" }}>📦 Stock Status Overview</h3>
+              <h3 style={{ marginBottom: "1.5rem" }}>
+                📦 Stock Status Overview
+              </h3>
               <div style={{ display: "grid", gap: "1rem" }}>
                 <div
                   style={{
@@ -834,7 +987,11 @@ const AdminDashboard = () => {
                 >
                   <span>⚠️ Low Stock</span>
                   <span style={{ fontWeight: "bold" }}>
-                    {Object.values(products).filter((p) => p.stock > 0 && p.stock <= 10).length}
+                    {
+                      Object.values(products).filter(
+                        (p) => p.stock > 0 && p.stock <= 10
+                      ).length
+                    }
                   </span>
                 </div>
                 <div
@@ -848,7 +1005,10 @@ const AdminDashboard = () => {
                 >
                   <span>🚫 Out of Stock</span>
                   <span style={{ fontWeight: "bold" }}>
-                    {Object.values(products).filter((p) => p.stock === 0).length}
+                    {
+                      Object.values(products).filter((p) => p.stock === 0)
+                        .length
+                    }
                   </span>
                 </div>
               </div>
@@ -875,7 +1035,9 @@ const AdminDashboard = () => {
                   }}
                 >
                   <span>Total Revenue</span>
-                  <span style={{ fontWeight: "bold" }}>₹{analytics.totalRevenue.toFixed(2)}</span>
+                  <span style={{ fontWeight: "bold" }}>
+                    ₹{analytics.totalRevenue.toFixed(2)}
+                  </span>
                 </div>
                 <div
                   style={{
@@ -888,7 +1050,12 @@ const AdminDashboard = () => {
                 >
                   <span>Average Order Value</span>
                   <span style={{ fontWeight: "bold" }}>
-                    ₹{analytics.totalOrders > 0 ? (analytics.totalRevenue / analytics.totalOrders).toFixed(2) : "0.00"}
+                    ₹
+                    {analytics.totalOrders > 0
+                      ? (
+                          analytics.totalRevenue / analytics.totalOrders
+                        ).toFixed(2)
+                      : "0.00"}
                   </span>
                 </div>
                 <div
@@ -901,7 +1068,9 @@ const AdminDashboard = () => {
                   }}
                 >
                   <span>Completed Orders</span>
-                  <span style={{ fontWeight: "bold" }}>{analytics.completedOrders}</span>
+                  <span style={{ fontWeight: "bold" }}>
+                    {analytics.completedOrders}
+                  </span>
                 </div>
               </div>
             </div>
@@ -941,12 +1110,22 @@ const AdminDashboard = () => {
             <form onSubmit={handleAddProduct}>
               <div style={{ display: "grid", gap: "1rem" }}>
                 <div>
-                  <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "600" }}>Product ID *</label>
+                  <label
+                    style={{
+                      display: "block",
+                      marginBottom: "0.5rem",
+                      fontWeight: "600",
+                    }}
+                  >
+                    Product ID *
+                  </label>
                   <input
                     type="text"
                     required
                     value={newProduct.id}
-                    onChange={(e) => setNewProduct((prev) => ({ ...prev, id: e.target.value }))}
+                    onChange={(e) =>
+                      setNewProduct((prev) => ({ ...prev, id: e.target.value }))
+                    }
                     style={{
                       width: "100%",
                       padding: "0.75rem",
@@ -957,12 +1136,25 @@ const AdminDashboard = () => {
                 </div>
 
                 <div>
-                  <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "600" }}>Product Name *</label>
+                  <label
+                    style={{
+                      display: "block",
+                      marginBottom: "0.5rem",
+                      fontWeight: "600",
+                    }}
+                  >
+                    Product Name *
+                  </label>
                   <input
                     type="text"
                     required
                     value={newProduct.name}
-                    onChange={(e) => setNewProduct((prev) => ({ ...prev, name: e.target.value }))}
+                    onChange={(e) =>
+                      setNewProduct((prev) => ({
+                        ...prev,
+                        name: e.target.value,
+                      }))
+                    }
                     style={{
                       width: "100%",
                       padding: "0.75rem",
@@ -972,15 +1164,34 @@ const AdminDashboard = () => {
                   />
                 </div>
 
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr",
+                    gap: "1rem",
+                  }}
+                >
                   <div>
-                    <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "600" }}>Price (₹) *</label>
+                    <label
+                      style={{
+                        display: "block",
+                        marginBottom: "0.5rem",
+                        fontWeight: "600",
+                      }}
+                    >
+                      Price (₹) *
+                    </label>
                     <input
                       type="number"
                       step="0.01"
                       required
                       value={newProduct.price}
-                      onChange={(e) => setNewProduct((prev) => ({ ...prev, price: e.target.value }))}
+                      onChange={(e) =>
+                        setNewProduct((prev) => ({
+                          ...prev,
+                          price: e.target.value,
+                        }))
+                      }
                       style={{
                         width: "100%",
                         padding: "0.75rem",
@@ -991,14 +1202,25 @@ const AdminDashboard = () => {
                   </div>
 
                   <div>
-                    <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "600" }}>
+                    <label
+                      style={{
+                        display: "block",
+                        marginBottom: "0.5rem",
+                        fontWeight: "600",
+                      }}
+                    >
                       Initial Stock *
                     </label>
                     <input
                       type="number"
                       required
                       value={newProduct.stock}
-                      onChange={(e) => setNewProduct((prev) => ({ ...prev, stock: e.target.value }))}
+                      onChange={(e) =>
+                        setNewProduct((prev) => ({
+                          ...prev,
+                          stock: e.target.value,
+                        }))
+                      }
                       style={{
                         width: "100%",
                         padding: "0.75rem",
@@ -1010,11 +1232,24 @@ const AdminDashboard = () => {
                 </div>
 
                 <div>
-                  <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "600" }}>Category *</label>
+                  <label
+                    style={{
+                      display: "block",
+                      marginBottom: "0.5rem",
+                      fontWeight: "600",
+                    }}
+                  >
+                    Category *
+                  </label>
                   <select
                     required
                     value={newProduct.category}
-                    onChange={(e) => setNewProduct((prev) => ({ ...prev, category: e.target.value }))}
+                    onChange={(e) =>
+                      setNewProduct((prev) => ({
+                        ...prev,
+                        category: e.target.value,
+                      }))
+                    }
                     style={{
                       width: "100%",
                       padding: "0.75rem",
@@ -1033,11 +1268,24 @@ const AdminDashboard = () => {
                 </div>
 
                 <div>
-                  <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "600" }}>Description *</label>
+                  <label
+                    style={{
+                      display: "block",
+                      marginBottom: "0.5rem",
+                      fontWeight: "600",
+                    }}
+                  >
+                    Description *
+                  </label>
                   <textarea
                     required
                     value={newProduct.description}
-                    onChange={(e) => setNewProduct((prev) => ({ ...prev, description: e.target.value }))}
+                    onChange={(e) =>
+                      setNewProduct((prev) => ({
+                        ...prev,
+                        description: e.target.value,
+                      }))
+                    }
                     style={{
                       width: "100%",
                       padding: "0.75rem",
@@ -1092,7 +1340,7 @@ const AdminDashboard = () => {
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default AdminDashboard
+export default AdminDashboard;
