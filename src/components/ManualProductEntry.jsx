@@ -1,102 +1,155 @@
-"use client";
+"use client"
 
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { useCart } from "../utils/CartContext.jsx";
-import { getAllProducts, getProductById } from "../utils/productData.js";
-import { playSuccessSound } from "../utils/soundUtils.js";
-import { SmartImage } from "../utils/imageUtils.jsx";
+import { useState, useEffect } from "react"
+import { motion, AnimatePresence } from "framer-motion"
+import { useCart } from "../utils/CartContext.jsx"
+import { getAllProducts, getProductById, validateStockForCart } from "../utils/productData.js"
+import { playSuccessSound } from "../utils/soundUtils.js"
+import { SmartImage } from "../utils/imageUtils.jsx"
+import toast from "../utils/toastUtils.js"
 
 const ManualProductEntry = ({ onProductAdded }) => {
-  const [productId, setProductId] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [allProducts, setAllProducts] = useState({});
-  const [showProductList, setShowProductList] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  const { addItemOnce, isItemInCart } = useCart();
+  const [productId, setProductId] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
+  const [allProducts, setAllProducts] = useState({})
+  const [showProductList, setShowProductList] = useState(true)
+  const [searchTerm, setSearchTerm] = useState("")
+  const [selectedCategory, setSelectedCategory] = useState("all")
+  const [recentToasts, setRecentToasts] = useState(new Set())
+  const { addItemOnce, isItemInCart } = useCart()
 
   useEffect(() => {
-    loadAllProducts();
-  }, []);
+    loadAllProducts()
+  }, [])
+
+  const showToastOnce = (message, type = "success") => {
+    if (recentToasts.has(message)) {
+      return // Don't show duplicate toast
+    }
+
+    setRecentToasts((prev) => new Set([...prev, message]))
+
+    if (type === "success") {
+      toast.success(message)
+    } else if (type === "error") {
+      toast.error(message)
+    } else {
+      toast(message)
+    }
+
+    setTimeout(() => {
+      setRecentToasts((prev) => {
+        const newSet = new Set(prev)
+        newSet.delete(message)
+        return newSet
+      })
+    }, 3000)
+  }
 
   const loadAllProducts = async () => {
     try {
-      console.log("📦 Loading all products...");
-      const products = await getAllProducts();
-      setAllProducts(products);
-      console.log("✅ Loaded", Object.keys(products).length, "products");
-    } catch (error) {
-      console.error("❌ Error loading products:", error);
-    }
-  };
+      console.log("📦 Loading all products...")
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!productId.trim()) {
-      return;
-    }
-    await addProductToCart(productId.trim().toUpperCase());
-  };
+      const products = await getAllProducts()
+      setAllProducts(products)
+      console.log("✅ Loaded", Object.keys(products).length, "products")
 
-  const addProductToCart = async (id) => {
-    setIsLoading(true);
-
-    try {
-      const product = await getProductById(id);
-
-      if (product) {
-        if (isItemInCart(product.id)) {
-          console.log(`${product.name} is already in your cart!`);
-        } else {
-          addItemOnce(product);
-          playSuccessSound();
-          console.log(`✅ Added ${product.name} to cart!`);
-
-          if (onProductAdded) {
-            onProductAdded(product);
-          }
-          setProductId("");
-        }
+      if (Object.keys(products).length === 0) {
+        console.warn("📦 No products loaded. This could be due to:")
+        console.log("1. Backend server not running")
+        console.log("2. Database connection issues")
+        console.log("3. No products in database")
+        showToastOnce("No products found. Please check server connection.", "error")
       } else {
-        console.log(`Product ${id} not found`);
+        showToastOnce(`Loaded ${Object.keys(products).length} products successfully!`)
       }
     } catch (error) {
-      console.error("Error fetching product:", error);
-    } finally {
-      setIsLoading(false);
+      console.error("❌ Error loading products:", error)
+      setAllProducts({})
+      showToastOnce("Failed to load products. Please try again.", "error")
     }
-  };
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    if (!productId.trim()) {
+      return
+    }
+    await addProductToCart(productId.trim().toUpperCase())
+  }
+
+  const addProductToCart = async (id) => {
+    setIsLoading(true)
+
+    try {
+      const product = await getProductById(id)
+
+      if (!product) {
+        showToastOnce(`Product ${id} not found`, "error")
+        return
+      }
+
+      if (isItemInCart(product.id)) {
+        showToastOnce(`${product.name} is already in your cart!`, "error")
+        return
+      }
+
+      const stockValidation = await validateStockForCart(product.id, 1)
+
+      if (!stockValidation.available) {
+        if (stockValidation.availableStock === 0) {
+          showToastOnce(`Sorry! ${product.name} is out of stock`, "error")
+        } else {
+          showToastOnce(`Only ${stockValidation.availableStock} ${product.name} available in stock`, "error")
+        }
+        return
+      }
+
+      addItemOnce(product)
+      playSuccessSound()
+      showToastOnce(`✅ ${product.name} added to cart!`)
+      console.log(`✅ Added ${product.name} to cart!`)
+
+      if (onProductAdded) {
+        onProductAdded(product)
+      }
+      setProductId("")
+    } catch (error) {
+      console.error("Error fetching product:", error)
+      showToastOnce("Failed to add product. Please try again.", "error")
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   const getFilteredProducts = () => {
-    const products = Object.values(allProducts);
+    const products = Object.values(allProducts)
     return products.filter((product) => {
       const matchesSearch =
         product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         product.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.description.toLowerCase().includes(searchTerm.toLowerCase());
+        product.description.toLowerCase().includes(searchTerm.toLowerCase())
 
       const matchesCategory =
-        selectedCategory === "all" ||
-        product.category?.toLowerCase() === selectedCategory.toLowerCase();
+        selectedCategory === "all" || product.category?.toLowerCase() === selectedCategory.toLowerCase()
 
-      return matchesSearch && matchesCategory;
-    });
-  };
+      return matchesSearch && matchesCategory
+    })
+  }
 
   const getCategories = () => {
     const categories = [
       ...new Set(
         Object.values(allProducts)
           .map((p) => p.category)
-          .filter(Boolean)
+          .filter(Boolean),
       ),
-    ];
-    return categories.sort();
-  };
+    ]
+    return categories.sort()
+  }
 
-  const filteredProducts = getFilteredProducts();
-  const categories = getCategories();
+  const filteredProducts = getFilteredProducts()
+  const categories = getCategories()
 
   return (
     <motion.div
@@ -126,10 +179,8 @@ const ManualProductEntry = ({ onProductAdded }) => {
         </h3>
         <button
           onClick={() => {
-            setShowProductList(!showProductList);
-            console.log(
-              showProductList ? "Product list hidden" : "Product list shown"
-            );
+            setShowProductList(!showProductList)
+            console.log(showProductList ? "Product list hidden" : "Product list shown")
           }}
           className="nav-btn info"
           style={{ fontSize: "0.875rem", padding: "0.5rem 1rem" }}
@@ -201,8 +252,8 @@ const ManualProductEntry = ({ onProductAdded }) => {
               </h4>
               <button
                 onClick={() => {
-                  loadAllProducts();
-                  console.log("Products refreshed!");
+                  loadAllProducts()
+                  console.log("Products refreshed!")
                 }}
                 className="nav-btn secondary"
                 style={{ fontSize: "0.75rem", padding: "0.5rem 1rem" }}
@@ -268,9 +319,7 @@ const ManualProductEntry = ({ onProductAdded }) => {
                       style={{
                         padding: "1.5rem",
                         position: "relative",
-                        background: isItemInCart(product.id)
-                          ? "rgba(16, 185, 129, 0.05)"
-                          : "var(--bg-primary)",
+                        background: isItemInCart(product.id) ? "rgba(16, 185, 129, 0.05)" : "var(--bg-primary)",
                         border: isItemInCart(product.id)
                           ? "2px solid var(--secondary-color)"
                           : "1px solid var(--border-light)",
@@ -355,28 +404,40 @@ const ManualProductEntry = ({ onProductAdded }) => {
                           >
                             ₹{product.price.toFixed(2)}
                           </span>
-                          {product.stock && (
+                          {product.stock !== undefined && (
                             <span
-                              className="badge secondary"
+                              className={`badge ${product.stock === 0 ? "danger" : product.stock <= 5 ? "warning" : "secondary"}`}
                               style={{ fontSize: "0.75rem" }}
                             >
                               Stock: {product.stock}
+                              {product.stock === 0 && " (Out of Stock)"}
+                              {product.stock > 0 && product.stock <= 5 && " (Low Stock)"}
                             </span>
                           )}
                         </div>
 
                         <button
-                          className={`nav-btn ${
-                            isItemInCart(product.id) ? "accent" : "primary"
-                          }`}
-                          style={{ width: "100%", justifyContent: "center" }}
-                          onClick={(e) => {
-                            addProductToCart(product.id);
+                          className={`nav-btn ${isItemInCart(product.id) ? "accent" : product.stock === 0 ? "disabled" : "primary"}`}
+                          style={{
+                            width: "100%",
+                            justifyContent: "center",
+                            opacity: product.stock === 0 ? 0.5 : 1,
+                            cursor: product.stock === 0 ? "not-allowed" : "pointer",
                           }}
+                          onClick={(e) => {
+                            if (product.stock === 0) {
+                              showToastOnce(`Sorry! ${product.name} is out of stock`, "error")
+                              return
+                            }
+                            addProductToCart(product.id)
+                          }}
+                          disabled={product.stock === 0}
                         >
                           {isItemInCart(product.id)
                             ? "✅ In Cart"
-                            : "➕ Add to Cart"}
+                            : product.stock === 0
+                              ? "❌ Out of Stock"
+                              : "➕ Add to Cart"}
                         </button>
                       </div>
                     </motion.div>
@@ -392,10 +453,13 @@ const ManualProductEntry = ({ onProductAdded }) => {
                       <>
                         <div className="empty-state-icon">📦</div>
                         <h3>Loading Products...</h3>
-                        <div
-                          className="loading-spinner"
-                          style={{ margin: "1rem auto" }}
-                        ></div>
+                        <p>If products don't load, please check:</p>
+                        <ul style={{ textAlign: "left", margin: "1rem 0" }}>
+                          <li>Backend server is running</li>
+                          <li>Database connection is working</li>
+                          <li>Products exist in database</li>
+                        </ul>
+                        <div className="loading-spinner" style={{ margin: "1rem auto" }}></div>
                       </>
                     ) : (
                       <>
@@ -416,8 +480,7 @@ const ManualProductEntry = ({ onProductAdded }) => {
         style={{
           marginTop: "2rem",
           padding: "1.5rem",
-          background:
-            "linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%)",
+          background: "linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%)",
           borderRadius: "var(--radius-xl)",
           border: "1px solid var(--border-light)",
         }}
@@ -459,26 +522,34 @@ const ManualProductEntry = ({ onProductAdded }) => {
               </h5>
               <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
                 {category.ids.map((id) => {
-                  const product = allProducts[id];
+                  const product = allProducts[id]
+                  const isOutOfStock = product && product.stock === 0
                   return (
                     <motion.button
                       key={id}
-                      className={`badge ${
-                        isItemInCart(id) ? "warning" : "primary"
-                      }`}
+                      className={`badge ${isItemInCart(id) ? "warning" : isOutOfStock ? "danger" : "primary"}`}
                       style={{
-                        cursor: "pointer",
+                        cursor: isOutOfStock ? "not-allowed" : "pointer",
                         border: "none",
                         transition: "var(--transition)",
+                        opacity: isOutOfStock ? 0.6 : 1,
                       }}
-                      onClick={() => addProductToCart(id)}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
+                      onClick={() => {
+                        if (isOutOfStock) {
+                          showToastOnce(`Sorry! ${product.name} is out of stock`, "error")
+                          return
+                        }
+                        addProductToCart(id)
+                      }}
+                      whileHover={{ scale: isOutOfStock ? 1 : 1.05 }}
+                      whileTap={{ scale: isOutOfStock ? 1 : 0.95 }}
+                      disabled={isOutOfStock}
                     >
-                      {isItemInCart(id) ? "✅" : "+"} {id}
+                      {isItemInCart(id) ? "✅" : isOutOfStock ? "❌" : "+"} {id}
                       {product && ` - ₹${product.price}`}
+                      {isOutOfStock && " (Out of Stock)"}
                     </motion.button>
-                  );
+                  )
                 })}
               </div>
             </div>
@@ -493,12 +564,11 @@ const ManualProductEntry = ({ onProductAdded }) => {
             textAlign: "center",
           }}
         >
-          💡 Click any Product ID to add instantly • Perfect for testing NFC
-          tags!
+          💡 Click any Product ID to add instantly • Perfect for testing NFC tags!
         </p>
       </div>
     </motion.div>
-  );
-};
+  )
+}
 
-export default ManualProductEntry;
+export default ManualProductEntry
