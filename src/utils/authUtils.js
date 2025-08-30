@@ -1,6 +1,14 @@
 // Authentication utility functions
 
-export const API_BASE_URL = "http://localhost:5000/api"
+// Get API URL based on environment
+export const getApiBaseUrl = () => {
+  // Use deployed URL in production, local URL in development
+  if (import.meta.env.VITE_NODE_ENV === 'production') {
+    return import.meta.env.VITE_DEPLOYED_API_URL || 'https://server-azure-five-33.vercel.app/api'
+  } else {
+    return import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api'
+  }
+}
 
 // Get stored admin token
 export const getAdminToken = () => {
@@ -27,15 +35,16 @@ export const clearAdminAuth = () => {
 }
 
 // Verify token with server
-export const verifyAdminToken = async () => {
+export const verifyAdminToken = async (apiUrl = null) => {
   const token = getAdminToken()
+  const baseUrl = apiUrl || getApiBaseUrl()
 
   if (!token) {
     return { valid: false, admin: null }
   }
 
   try {
-    const response = await fetch(`${API_BASE_URL}/auth/verify`, {
+    const response = await fetch(`${baseUrl}/auth/verify`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -64,6 +73,7 @@ export const verifyAdminToken = async () => {
 // Make authenticated API request
 export const makeAuthenticatedRequest = async (url, options = {}) => {
   const token = getAdminToken()
+  const baseUrl = getApiBaseUrl()
 
   if (!token) {
     throw new Error("No authentication token found")
@@ -82,7 +92,7 @@ export const makeAuthenticatedRequest = async (url, options = {}) => {
     },
   }
 
-  const response = await fetch(`${API_BASE_URL}${url}`, requestOptions)
+  const response = await fetch(`${baseUrl}${url}`, requestOptions)
 
   // Handle unauthorized responses
   if (response.status === 401) {
@@ -98,9 +108,10 @@ export const makeAuthenticatedRequest = async (url, options = {}) => {
 export const logoutAdmin = async () => {
   try {
     const token = getAdminToken()
+    const baseUrl = getApiBaseUrl()
 
     if (token) {
-      await fetch(`${API_BASE_URL}/auth/logout`, {
+      await fetch(`${baseUrl}/auth/logout`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

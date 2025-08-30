@@ -82,6 +82,12 @@ const authReducer = (state, action) => {
         error: null,
       }
 
+    case "SET_LOADING":
+      return {
+        ...state,
+        loading: action.payload,
+      }
+
     default:
       return state
   }
@@ -91,12 +97,22 @@ const initialState = {
   isAuthenticated: false,
   admin: null,
   token: null,
-  loading: true, // Start with loading true to check existing auth
+  loading: true,
   error: null,
 }
 
 export const AuthProvider = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, initialState)
+
+  // Get API URL based on environment
+  const getApiBaseUrl = () => {
+    // Use deployed URL in production, local URL in development
+    if (import.meta.env.VITE_NODE_ENV === 'production') {
+      return import.meta.env.VITE_DEPLOYED_API_URL || 'https://server-azure-five-33.vercel.app/api'
+    } else {
+      return import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api'
+    }
+  }
 
   // Check for existing authentication on mount
   useEffect(() => {
@@ -108,7 +124,8 @@ export const AuthProvider = ({ children }) => {
         dispatch({ type: "VERIFY_START" })
 
         try {
-          const { valid, admin } = await verifyAdminToken()
+          const apiUrl = getApiBaseUrl()
+          const { valid, admin } = await verifyAdminToken(apiUrl)
 
           if (valid && admin) {
             dispatch({
@@ -137,13 +154,22 @@ export const AuthProvider = ({ children }) => {
     dispatch({ type: "LOGIN_START" })
 
     try {
-      const response = await fetch("http://localhost:5000/api/auth/login", {
+      const apiUrl = getApiBaseUrl()
+      console.log("Attempting login to:", `${apiUrl}/auth/login`)
+      
+      const response = await fetch(`${apiUrl}/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(credentials),
       })
+
+      // Check if response is OK (status 200-299)
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.message || `HTTP error! status: ${response.status}`)
+      }
 
       const data = await response.json()
 
@@ -171,7 +197,15 @@ export const AuthProvider = ({ children }) => {
       }
     } catch (error) {
       console.error("Login error:", error)
-      const errorMessage = "Network error. Please check your connection."
+      
+      let errorMessage = "Network error. Please check your connection and try again."
+      
+      if (error.message.includes("Failed to fetch")) {
+        errorMessage = "Cannot connect to the server. Please make sure the backend is running."
+      } else if (error.message.includes("HTTP error")) {
+        errorMessage = `Server error: ${error.message}`
+      }
+      
       dispatch({
         type: "LOGIN_FAILURE",
         payload: errorMessage,
@@ -186,7 +220,8 @@ export const AuthProvider = ({ children }) => {
 
       if (token) {
         // Call logout endpoint
-        await fetch("http://localhost:5000/api/auth/logout", {
+        const apiUrl = getApiBaseUrl()
+        await fetch(`${apiUrl}/auth/logout`, {
           method: "POST",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -217,11 +252,16 @@ export const AuthProvider = ({ children }) => {
     dispatch({ type: "CLEAR_ERROR" })
   }
 
+  const setLoading = (loading) => {
+    dispatch({ type: "SET_LOADING", payload: loading })
+  }
+
   const refreshAuth = async () => {
     if (!state.isAuthenticated) return
 
     try {
-      const { valid, admin } = await verifyAdminToken()
+      const apiUrl = getApiBaseUrl()
+      const { valid, admin } = await verifyAdminToken(apiUrl)
 
       if (valid && admin) {
         dispatch({
@@ -258,6 +298,7 @@ export const AuthProvider = ({ children }) => {
         updateAdmin,
         clearError,
         refreshAuth,
+        setLoading,
       }}
     >
       {children}
