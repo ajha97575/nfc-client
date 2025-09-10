@@ -1,20 +1,27 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
-import { CartProvider } from "./utils/CartContext.jsx"
-import { AuthProvider, withAuth } from "./utils/AuthContext.jsx"
-import LandingPage from "./pages/LandingPage.jsx"
-import Home from "./pages/Home.jsx"
-import Cart from "./pages/Cart.jsx"
-import Payment from "./pages/Payment.jsx"
-import Invoice from "./pages/Invoice.jsx"
-import Orders from "./pages/Orders.jsx"
-import AdminDashboard from "./pages/AdminDashboard.jsx"
-import NFCManager from "./pages/NFCManager.jsx"
-import AdminLogin from "./pages/AdminLogin.jsx"
-import "./App.css"
+"use client";
 
-const ProtectedAdminDashboard = withAuth(AdminDashboard)
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { CartProvider } from "./utils/CartContext.jsx";
+import { AuthProvider, withAuth } from "./utils/AuthContext.jsx";
+import LandingPage from "./pages/LandingPage.jsx";
+import Home from "./pages/Home.jsx";
+import Cart from "./pages/Cart.jsx";
+import Payment from "./pages/Payment.jsx";
+import Invoice from "./pages/Invoice.jsx";
+import Orders from "./pages/Orders.jsx";
+import AdminDashboard from "./pages/AdminDashboard.jsx";
+import NFCManager from "./pages/NFCManager.jsx";
+import AdminLogin from "./pages/AdminLogin.jsx";
+import "./App.css";
+import { useEffect } from "react";
+
+const ProtectedAdminDashboard = withAuth(AdminDashboard);
 
 function App() {
+  useEffect(() => {
+    document.title = "Tip Tap Pay - Smart Payment Solutions";
+  }, []);
+
   return (
     <AuthProvider>
       <CartProvider>
@@ -35,7 +42,7 @@ function App() {
         </Router>
       </CartProvider>
     </AuthProvider>
-  )
+  );
 }
 
-export default App
+export default App;

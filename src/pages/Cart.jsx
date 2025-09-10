@@ -1,23 +1,27 @@
-"use client"
+"use client";
 
-import { Link, useNavigate } from "react-router-dom"
-import { useCart } from "../utils/CartContext.jsx"
+import { Link, useNavigate } from "react-router-dom";
+import { useCart } from "../utils/CartContext.jsx";
 
 const Cart = () => {
-  const { items, removeItem, updateQuantity, getTotal, clearCart } = useCart()
-  const navigate = useNavigate()
+  const { items, removeItem, updateQuantity, getTotal, clearCart } = useCart();
+  const navigate = useNavigate();
 
   const handleCheckout = () => {
     if (items.length > 0) {
-      navigate("/payment")
+      navigate("/payment");
     }
-  }
+  };
 
   const handleClearCart = () => {
-    if (window.confirm("Are you sure you want to clear your cart? This action cannot be undone.")) {
-      clearCart()
+    if (
+      window.confirm(
+        "Are you sure you want to clear your cart? This action cannot be undone."
+      )
+    ) {
+      clearCart();
     }
-  }
+  };
 
   if (items.length === 0) {
     return (
@@ -40,13 +44,17 @@ const Cart = () => {
             <div className="empty-cart-icon">🛒</div>
             <h2>Your cart is empty</h2>
             <p>Scan some QR codes to add products!</p>
-            <Link to="/scanner" className="nav-btn" style={{ marginTop: "1rem" }}>
+            <Link
+              to="/scanner"
+              className="nav-btn"
+              style={{ marginTop: "1rem" }}
+            >
               Start Scanning Products
             </Link>
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -77,8 +85,12 @@ const Cart = () => {
 
             <div className="cart-item-details">
               <div className="cart-item-name">{item.name}</div>
-              <div className="cart-item-price">₹{item.price.toFixed(2)} each</div>
-              <div style={{ fontSize: "12px", color: "#666", marginTop: "4px" }}>
+              <div className="cart-item-price">
+                ₹{item.price.toFixed(2)} each
+              </div>
+              <div
+                style={{ fontSize: "12px", color: "#666", marginTop: "4px" }}
+              >
                 Subtotal: ₹{(item.price * item.quantity).toFixed(2)}
               </div>
 
@@ -94,10 +106,20 @@ const Cart = () => {
                 >
                   -
                 </button>
-                <span style={{ margin: "0 1rem", fontWeight: "bold", minWidth: "30px", textAlign: "center" }}>
+                <span
+                  style={{
+                    margin: "0 1rem",
+                    fontWeight: "bold",
+                    minWidth: "30px",
+                    textAlign: "center",
+                  }}
+                >
                   {item.quantity}
                 </span>
-                <button className="quantity-btn" onClick={() => updateQuantity(item.id, item.quantity + 1)}>
+                <button
+                  className="quantity-btn"
+                  onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                >
                   +
                 </button>
               </div>
@@ -111,24 +133,48 @@ const Cart = () => {
 
         <div className="cart-total">
           <div style={{ marginBottom: "1rem", fontSize: "16px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", margin: "0.5rem 0" }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                margin: "0.5rem 0",
+              }}
+            >
               <span>Subtotal:</span>
               <span>₹{getTotal().toFixed(2)}</span>
             </div>
-            <div style={{ display: "flex", justifyContent: "space-between", margin: "0.5rem 0" }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                margin: "0.5rem 0",
+              }}
+            >
               <span>GST (18%):</span>
               <span>₹{(getTotal() * 0.18).toFixed(2)}</span>
             </div>
-            <div style={{ display: "flex", justifyContent: "space-between", margin: "0.5rem 0" }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                margin: "0.5rem 0",
+              }}
+            >
               <span>Shipping:</span>
               <span>Free</span>
             </div>
             <hr style={{ margin: "1rem 0" }} />
           </div>
 
-          <div className="total-amount">Total: ₹{(getTotal() * 1.18).toFixed(2)}</div>
+          <div className="total-amount">
+            Total: ₹{(getTotal() * 1.18).toFixed(2)}
+          </div>
 
-          <button className="nav-btn" style={{ marginTop: "1rem", fontSize: "1.2rem" }} onClick={handleCheckout}>
+          <button
+            className="nav-btn"
+            style={{ marginTop: "1rem", fontSize: "1.2rem" }}
+            onClick={handleCheckout}
+          >
             💳 Proceed to Checkout
           </button>
         </div>
@@ -147,10 +193,11 @@ const Cart = () => {
           textAlign: "center",
         }}
       >
-        💾 Your cart is automatically saved and will persist even if you refresh the browser!
+        💾 Your cart is automatically saved and will persist even if you refresh
+        the browser!
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Cart
+export default Cart;

@@ -1,26 +1,30 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Link, useNavigate } from "react-router-dom"
-import html2pdf from "html2pdf.js"
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import html2pdf from "html2pdf.js";
 
 const Invoice = () => {
-  const [orderData, setOrderData] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const navigate = useNavigate()
+  const [orderData, setOrderData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const lastOrder = localStorage.getItem("lastOrder")
+    document.title = "Invoice - Tip Tap Pay";
+  }, []);
+
+  useEffect(() => {
+    const lastOrder = localStorage.getItem("lastOrder");
     if (lastOrder) {
       try {
-        const parsedOrder = JSON.parse(lastOrder)
-        setOrderData(parsedOrder)
+        const parsedOrder = JSON.parse(lastOrder);
+        setOrderData(parsedOrder);
       } catch (error) {
-        console.error("Error parsing order data:", error)
+        console.error("Error parsing order data:", error);
       }
     }
-    setLoading(false)
-  }, [])
+    setLoading(false);
+  }, []);
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString("en-IN", {
@@ -29,15 +33,15 @@ const Invoice = () => {
       day: "numeric",
       hour: "2-digit",
       minute: "2-digit",
-    })
-  }
+    });
+  };
 
   const handlePrint = () => {
-    window.print()
-  }
+    window.print();
+  };
 
   const handleDownloadPDF = () => {
-    const element = document.getElementById("invoice-content")
+    const element = document.getElementById("invoice-content");
     const opt = {
       margin: [1, 0.5, 1, 0.5], // Top, Right, Bottom, Left margins in inches
       filename: `invoice-${orderData.id}.pdf`,
@@ -55,9 +59,9 @@ const Invoice = () => {
         compress: true,
       },
       pagebreak: { mode: ["avoid-all", "css", "legacy"] }, // Better page break handling
-    }
-    html2pdf().set(opt).from(element).save()
-  }
+    };
+    html2pdf().set(opt).from(element).save();
+  };
 
   if (loading) {
     return (
@@ -71,7 +75,7 @@ const Invoice = () => {
           <p>Loading invoice details...</p>
         </div>
       </div>
-    )
+    );
   }
 
   if (!orderData) {
@@ -109,7 +113,7 @@ const Invoice = () => {
           </Link>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -168,7 +172,13 @@ const Invoice = () => {
               }}
             >
               <div style={{ flex: "1", minWidth: "300px" }}>
-                <div style={{ display: "flex", alignItems: "center", marginBottom: "15px" }}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    marginBottom: "15px",
+                  }}
+                >
                   <div
                     style={{
                       width: "50px", // Reduced size
@@ -185,18 +195,40 @@ const Invoice = () => {
                     💳
                   </div>
                   <div>
-                    <h1 style={{ margin: "0", fontSize: "2.2rem", fontWeight: "bold", letterSpacing: "-0.01em" }}>
+                    <h1
+                      style={{
+                        margin: "0",
+                        fontSize: "2.2rem",
+                        fontWeight: "bold",
+                        letterSpacing: "-0.01em",
+                      }}
+                    >
                       TIP TAP PAY
                     </h1>
-                    <p style={{ margin: "5px 0 0 0", fontSize: "14px", opacity: "0.9", fontWeight: "500" }}>
+                    <p
+                      style={{
+                        margin: "5px 0 0 0",
+                        fontSize: "14px",
+                        opacity: "0.9",
+                        fontWeight: "500",
+                      }}
+                    >
                       Smart Payment Solutions
                     </p>
                   </div>
                 </div>
-                <div style={{ fontSize: "13px", opacity: "0.9", lineHeight: "1.5" }}>
+                <div
+                  style={{
+                    fontSize: "13px",
+                    opacity: "0.9",
+                    lineHeight: "1.5",
+                  }}
+                >
                   <p style={{ margin: "2px 0" }}>📧 support@tiptappay.com</p>
                   <p style={{ margin: "2px 0" }}>📞 +91-9876-543-210</p>
-                  <p style={{ margin: "2px 0" }}>🏢 123 Tech Street, Digital City, India - 110001</p>
+                  <p style={{ margin: "2px 0" }}>
+                    🏢 123 Tech Street, Digital City, India - 110001
+                  </p>
                 </div>
               </div>
 
@@ -208,7 +240,15 @@ const Invoice = () => {
                     borderRadius: "10px",
                   }}
                 >
-                  <h2 style={{ margin: "0 0 8px 0", fontSize: "1.6rem", fontWeight: "bold" }}>INVOICE</h2>
+                  <h2
+                    style={{
+                      margin: "0 0 8px 0",
+                      fontSize: "1.6rem",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    INVOICE
+                  </h2>
                   <div style={{ fontSize: "13px", opacity: "0.9" }}>
                     <p style={{ margin: "3px 0" }}>
                       <strong>Invoice #:</strong> INV-{orderData.id}
@@ -271,24 +311,54 @@ const Invoice = () => {
               >
                 Invoice Details
               </h3>
-              <div style={{ lineHeight: "1.8", color: "#475569", fontSize: "14px" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px" }}>
+              <div
+                style={{
+                  lineHeight: "1.8",
+                  color: "#475569",
+                  fontSize: "14px",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    marginBottom: "6px",
+                  }}
+                >
                   <span style={{ fontWeight: "600" }}>Invoice #:</span>
                   <span
-                    style={{ fontFamily: "monospace", background: "#e2e8f0", padding: "2px 6px", borderRadius: "3px" }}
+                    style={{
+                      fontFamily: "monospace",
+                      background: "#e2e8f0",
+                      padding: "2px 6px",
+                      borderRadius: "3px",
+                    }}
                   >
                     INV-{orderData.id}
                   </span>
                 </div>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px" }}>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    marginBottom: "6px",
+                  }}
+                >
                   <span style={{ fontWeight: "600" }}>Order ID:</span>
                   <span
-                    style={{ fontFamily: "monospace", background: "#e2e8f0", padding: "2px 6px", borderRadius: "3px" }}
+                    style={{
+                      fontFamily: "monospace",
+                      background: "#e2e8f0",
+                      padding: "2px 6px",
+                      borderRadius: "3px",
+                    }}
                   >
                     {orderData.id}
                   </span>
                 </div>
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <div
+                  style={{ display: "flex", justifyContent: "space-between" }}
+                >
                   <span style={{ fontWeight: "600" }}>Date:</span>
                   <span>{formatDate(orderData.date)}</span>
                 </div>
@@ -331,20 +401,45 @@ const Invoice = () => {
               >
                 Payment Details
               </h3>
-              <div style={{ lineHeight: "1.8", color: "#475569", fontSize: "14px" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px" }}>
+              <div
+                style={{
+                  lineHeight: "1.8",
+                  color: "#475569",
+                  fontSize: "14px",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    marginBottom: "6px",
+                  }}
+                >
                   <span style={{ fontWeight: "600" }}>Method:</span>
                   <span>{orderData.paymentMethod}</span>
                 </div>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px" }}>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    marginBottom: "6px",
+                  }}
+                >
                   <span style={{ fontWeight: "600" }}>Transaction:</span>
                   <span
-                    style={{ fontFamily: "monospace", background: "#d1fae5", padding: "2px 6px", borderRadius: "3px" }}
+                    style={{
+                      fontFamily: "monospace",
+                      background: "#d1fae5",
+                      padding: "2px 6px",
+                      borderRadius: "3px",
+                    }}
                   >
                     {orderData.transactionId}
                   </span>
                 </div>
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <div
+                  style={{ display: "flex", justifyContent: "space-between" }}
+                >
                   <span style={{ fontWeight: "600" }}>Status:</span>
                   <span
                     style={{
@@ -438,8 +533,22 @@ const Invoice = () => {
                         borderBottom: "1px solid #e2e8f0",
                       }}
                     >
-                      <td style={{ padding: "12px", fontWeight: "600", fontSize: "14px" }}>{item.name}</td>
-                      <td style={{ padding: "12px", textAlign: "center", fontSize: "14px" }}>
+                      <td
+                        style={{
+                          padding: "12px",
+                          fontWeight: "600",
+                          fontSize: "14px",
+                        }}
+                      >
+                        {item.name}
+                      </td>
+                      <td
+                        style={{
+                          padding: "12px",
+                          textAlign: "center",
+                          fontSize: "14px",
+                        }}
+                      >
                         <span
                           style={{
                             background: "#e2e8f0",
@@ -451,7 +560,14 @@ const Invoice = () => {
                           {item.quantity}
                         </span>
                       </td>
-                      <td style={{ padding: "12px", textAlign: "center", fontSize: "14px", fontWeight: "500" }}>
+                      <td
+                        style={{
+                          padding: "12px",
+                          textAlign: "center",
+                          fontSize: "14px",
+                          fontWeight: "500",
+                        }}
+                      >
                         ₹{item.price.toFixed(2)}
                       </td>
                       <td
@@ -471,7 +587,14 @@ const Invoice = () => {
               </table>
             </div>
           </div>
-          <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "30px", pageBreakInside: "avoid" }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              marginBottom: "30px",
+              pageBreakInside: "avoid",
+            }}
+          >
             <div style={{ minWidth: "350px" }}>
               {" "}
               {/* Reduced width */}
@@ -493,7 +616,9 @@ const Invoice = () => {
                   }}
                 >
                   <span style={{ fontWeight: "600" }}>Subtotal:</span>
-                  <span style={{ fontWeight: "600" }}>₹{orderData.total.toFixed(2)}</span>
+                  <span style={{ fontWeight: "600" }}>
+                    ₹{orderData.total.toFixed(2)}
+                  </span>
                 </div>
                 <div
                   style={{
@@ -505,7 +630,9 @@ const Invoice = () => {
                   }}
                 >
                   <span style={{ fontWeight: "600" }}>GST (18%):</span>
-                  <span style={{ fontWeight: "600" }}>₹{orderData.tax.toFixed(2)}</span>
+                  <span style={{ fontWeight: "600" }}>
+                    ₹{orderData.tax.toFixed(2)}
+                  </span>
                 </div>
                 <div
                   style={{
@@ -517,7 +644,9 @@ const Invoice = () => {
                   }}
                 >
                   <span style={{ fontWeight: "600" }}>Shipping:</span>
-                  <span style={{ color: "#059669", fontWeight: "bold" }}>Free</span>
+                  <span style={{ color: "#059669", fontWeight: "bold" }}>
+                    Free
+                  </span>
                 </div>
                 <div
                   style={{
@@ -540,7 +669,9 @@ const Invoice = () => {
                     }}
                   >
                     <span>Total Amount:</span>
-                    <span style={{ color: "#3b82f6" }}>₹{orderData.finalTotal.toFixed(2)}</span>
+                    <span style={{ color: "#3b82f6" }}>
+                      ₹{orderData.finalTotal.toFixed(2)}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -586,8 +717,8 @@ const Invoice = () => {
                     lineHeight: "1.5",
                   }}
                 >
-                  Your order has been processed successfully. We appreciate your trust in Tip Tap Pay and look forward
-                  to serving you again!
+                  Your order has been processed successfully. We appreciate your
+                  trust in Tip Tap Pay and look forward to serving you again!
                 </p>
               </div>
             </div>
@@ -601,52 +732,79 @@ const Invoice = () => {
                 pageBreakInside: "avoid",
               }}
             >
-              <div style={{ fontSize: "13px", color: "#64748b", lineHeight: "1.6" }}>
+              <div
+                style={{
+                  fontSize: "13px",
+                  color: "#64748b",
+                  lineHeight: "1.6",
+                }}
+              >
                 <p style={{ margin: "6px 0", fontWeight: "600" }}>
                   📧 For support: support@tiptappay.com | 📞 +91-9876-543-210
                 </p>
-                <p style={{ margin: "6px 0" }}>🌐 Visit us: www.tiptappay.com | Follow us on social media</p>
-                <div style={{ marginTop: "12px", paddingTop: "12px", borderTop: "1px solid #e2e8f0" }}>
-                  <p style={{ margin: "4px 0", fontSize: "11px", color: "#94a3b8" }}>
+                <p style={{ margin: "6px 0" }}>
+                  🌐 Visit us: www.tiptappay.com | Follow us on social media
+                </p>
+                <div
+                  style={{
+                    marginTop: "12px",
+                    paddingTop: "12px",
+                    borderTop: "1px solid #e2e8f0",
+                  }}
+                >
+                  <p
+                    style={{
+                      margin: "4px 0",
+                      fontSize: "11px",
+                      color: "#94a3b8",
+                    }}
+                  >
                     This is a computer-generated invoice. No signature required.
                   </p>
-                  <p style={{ margin: "4px 0", fontSize: "11px", color: "#94a3b8" }}>
-                    Generated on {new Date().toLocaleString()} | Invoice ID: INV-{orderData.id}
+                  <p
+                    style={{
+                      margin: "4px 0",
+                      fontSize: "11px",
+                      color: "#94a3b8",
+                    }}
+                  >
+                    Generated on {new Date().toLocaleString()} | Invoice ID:
+                    INV-{orderData.id}
                   </p>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <div
-        style={{
-          display: "flex",
-          gap: "1rem",
-          justifyContent: "center",
-          flexWrap: "wrap",
-          marginBottom: "2rem",
-        }}
-      >
-        <Link
-          to="/scanner"
+        <div
           style={{
-            padding: "1rem 2rem",
-            background: "#007bff",
-            color: "white",
-            textDecoration: "none",
-            borderRadius: "8px",
-            fontSize: "16px",
-            fontWeight: "600",
-            display: "inline-block",
+            display: "flex",
+            gap: "1rem",
+            justifyContent: "center",
+            flexWrap: "wrap",
+            marginBottom: "2rem",
           }}
         >
-          🛒 Continue Shopping
-        </Link>
+          <Link
+            to="/scanner"
+            style={{
+              padding: "1rem 2rem",
+              background: "#007bff",
+              color: "white",
+              textDecoration: "none",
+              borderRadius: "8px",
+              fontSize: "16px",
+              fontWeight: "600",
+              display: "inline-block",
+            }}
+          >
+            🛒 Continue Shopping
+          </Link>
+        </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Invoice
+export default Invoice;

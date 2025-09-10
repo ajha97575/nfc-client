@@ -1,123 +1,150 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Link } from "react-router-dom"
-import { getAllOrders, getOrderById, cancelOrderAndRestoreStock } from "../utils/productData.js"
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import {
+  getAllOrders,
+  getOrderById,
+  cancelOrderAndRestoreStock,
+} from "../utils/productData.js";
 
 const Orders = () => {
-  const [orders, setOrders] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-  const [selectedOrder, setSelectedOrder] = useState(null)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [sortBy, setSortBy] = useState("newest")
-  const [isProcessing, setIsProcessing] = useState(false)
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [sortBy, setSortBy] = useState("newest");
+  const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
-    fetchOrders()
-  }, [])
+    document.title = "Orders - Tip Tap Pay";
+  }, []);
+
+  useEffect(() => {
+    fetchOrders();
+  }, []);
 
   const fetchOrders = async () => {
     try {
-      setLoading(true)
-      const ordersData = await getAllOrders()
-      setOrders(ordersData || [])
-      setError(null)
+      setLoading(true);
+      const ordersData = await getAllOrders();
+      setOrders(ordersData || []);
+      setError(null);
     } catch (err) {
-      console.error("Error fetching orders:", err)
-      setError("Failed to load orders. Please try again.")
+      console.error("Error fetching orders:", err);
+      setError("Failed to load orders. Please try again.");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleViewOrder = async (orderId) => {
     try {
-      const orderDetails = await getOrderById(orderId)
-      setSelectedOrder(orderDetails)
+      const orderDetails = await getOrderById(orderId);
+      setSelectedOrder(orderDetails);
     } catch (err) {
-      console.error("Error fetching order details:", err)
-      alert("Failed to load order details")
+      console.error("Error fetching order details:", err);
+      alert("Failed to load order details");
     }
-  }
+  };
 
   const handleCancelOrder = async (orderId) => {
     const confirmed = window.confirm(
-      "Are you sure you want to cancel this order? This will restore the stock for all items in the order.",
-    )
+      "Are you sure you want to cancel this order? This will restore the stock for all items in the order."
+    );
 
-    if (!confirmed) return
+    if (!confirmed) return;
 
     try {
-      setIsProcessing(true)
-      await cancelOrderAndRestoreStock(orderId)
+      setIsProcessing(true);
+      await cancelOrderAndRestoreStock(orderId);
 
       // Refresh orders list
-      await fetchOrders()
+      await fetchOrders();
 
       // Close order details if it's the cancelled order
       if (selectedOrder && selectedOrder.id === orderId) {
-        setSelectedOrder(null)
+        setSelectedOrder(null);
       }
 
-      alert("Order cancelled successfully and stock has been restored.")
+      alert("Order cancelled successfully and stock has been restored.");
     } catch (err) {
-      console.error("Error cancelling order:", err)
-      alert("Failed to cancel order. Please try again.")
+      console.error("Error cancelling order:", err);
+      alert("Failed to cancel order. Please try again.");
     } finally {
-      setIsProcessing(false)
+      setIsProcessing(false);
     }
-  }
+  };
+
+  const generateInvoice = (order) => {
+    // Store order data in localStorage for invoice page
+    localStorage.setItem(
+      "lastOrder",
+      JSON.stringify({
+        ...order,
+        transactionId: order.transactionId || `TXN${Date.now()}`,
+        tax: order.total * 0.18,
+        finalTotal: order.total + order.total * 0.18,
+        status: order.status || "completed",
+      })
+    );
+    // Navigate to invoice page
+    window.open("/invoice", "_blank");
+  };
 
   const filteredAndSortedOrders = orders
     .filter((order) => {
       const matchesSearch =
         order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.items.some((item) => item.name.toLowerCase().includes(searchTerm.toLowerCase()))
-      const matchesStatus = statusFilter === "all" || order.status === statusFilter
-      return matchesSearch && matchesStatus
+        order.items.some((item) =>
+          item.name.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+      const matchesStatus =
+        statusFilter === "all" || order.status === statusFilter;
+      return matchesSearch && matchesStatus;
     })
     .sort((a, b) => {
       switch (sortBy) {
         case "newest":
-          return new Date(b.date) - new Date(a.date)
+          return new Date(b.date) - new Date(a.date);
         case "oldest":
-          return new Date(a.date) - new Date(b.date)
+          return new Date(a.date) - new Date(b.date);
         case "amount-high":
-          return b.total - a.total
+          return b.total - a.total;
         case "amount-low":
-          return a.total - b.total
+          return a.total - b.total;
         default:
-          return 0
+          return 0;
       }
-    })
+    });
 
   const getStatusColor = (status) => {
     switch (status) {
       case "completed":
-        return "#28a745"
+        return "#28a745";
       case "pending":
-        return "#ffc107"
+        return "#ffc107";
       case "cancelled":
-        return "#dc3545"
+        return "#dc3545";
       default:
-        return "#6c757d"
+        return "#6c757d";
     }
-  }
+  };
 
   const getStatusIcon = (status) => {
     switch (status) {
       case "completed":
-        return "✅"
+        return "✅";
       case "pending":
-        return "⏳"
+        return "⏳";
       case "cancelled":
-        return "❌"
+        return "❌";
       default:
-        return "📦"
+        return "📦";
     }
-  }
+  };
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString("en-IN", {
@@ -126,8 +153,8 @@ const Orders = () => {
       day: "numeric",
       hour: "2-digit",
       minute: "2-digit",
-    })
-  }
+    });
+  };
 
   if (loading) {
     return (
@@ -141,7 +168,7 @@ const Orders = () => {
           <p>Loading orders...</p>
         </div>
       </div>
-    )
+    );
   }
 
   if (error) {
@@ -169,7 +196,7 @@ const Orders = () => {
           </button>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -207,7 +234,15 @@ const Orders = () => {
           }}
         >
           <div>
-            <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "600" }}>Search Orders</label>
+            <label
+              style={{
+                display: "block",
+                marginBottom: "0.5rem",
+                fontWeight: "600",
+              }}
+            >
+              Search Orders
+            </label>
             <input
               type="text"
               placeholder="Search by order ID or product name..."
@@ -224,7 +259,15 @@ const Orders = () => {
           </div>
 
           <div>
-            <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "600" }}>Filter by Status</label>
+            <label
+              style={{
+                display: "block",
+                marginBottom: "0.5rem",
+                fontWeight: "600",
+              }}
+            >
+              Filter by Status
+            </label>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
@@ -244,7 +287,15 @@ const Orders = () => {
           </div>
 
           <div>
-            <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "600" }}>Sort by</label>
+            <label
+              style={{
+                display: "block",
+                marginBottom: "0.5rem",
+                fontWeight: "600",
+              }}
+            >
+              Sort by
+            </label>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
@@ -333,7 +384,10 @@ const Orders = () => {
         >
           <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>💰</div>
           <div style={{ fontSize: "1.5rem", fontWeight: "bold" }}>
-            ₹{orders.reduce((sum, order) => sum + (order.total || 0), 0).toFixed(2)}
+            ₹
+            {orders
+              .reduce((sum, order) => sum + (order.total || 0), 0)
+              .toFixed(2)}
           </div>
           <div>Total Revenue</div>
         </div>
@@ -400,8 +454,12 @@ const Orders = () => {
                 }}
               >
                 <div>
-                  <h3 style={{ margin: "0 0 0.5rem 0", color: "#333" }}>Order #{order.id}</h3>
-                  <p style={{ margin: "0", color: "#666", fontSize: "14px" }}>{formatDate(order.date)}</p>
+                  <h3 style={{ margin: "0 0 0.5rem 0", color: "#333" }}>
+                    Order #{order.id}
+                  </h3>
+                  <p style={{ margin: "0", color: "#666", fontSize: "14px" }}>
+                    {formatDate(order.date)}
+                  </p>
                 </div>
 
                 <div style={{ textAlign: "right" }}>
@@ -421,7 +479,13 @@ const Orders = () => {
                   >
                     {getStatusIcon(order.status)} {order.status.toUpperCase()}
                   </div>
-                  <div style={{ fontSize: "1.25rem", fontWeight: "bold", color: "#333" }}>
+                  <div
+                    style={{
+                      fontSize: "1.25rem",
+                      fontWeight: "bold",
+                      color: "#333",
+                    }}
+                  >
                     ₹{order.total?.toFixed(2) || "0.00"}
                   </div>
                 </div>
@@ -470,21 +534,6 @@ const Orders = () => {
                   flexWrap: "wrap",
                 }}
               >
-                <button
-                  onClick={() => handleViewOrder(order.id)}
-                  style={{
-                    padding: "0.5rem 1rem",
-                    background: "#007bff",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "6px",
-                    cursor: "pointer",
-                    fontSize: "14px",
-                  }}
-                >
-                  View Details
-                </button>
-
                 {order.status === "completed" && (
                   <button
                     onClick={() => handleCancelOrder(order.id)}
@@ -504,20 +553,20 @@ const Orders = () => {
                   </button>
                 )}
 
-                <Link
-                  to="/invoice"
+                <button
+                  onClick={() => generateInvoice(order)}
                   style={{
                     padding: "0.5rem 1rem",
                     background: "#28a745",
                     color: "white",
-                    textDecoration: "none",
+                    border: "none",
                     borderRadius: "6px",
+                    cursor: "pointer",
                     fontSize: "14px",
-                    display: "inline-block",
                   }}
                 >
-                  View Invoice
-                </Link>
+                  📄 View Invoice
+                </button>
               </div>
             </div>
           ))}
@@ -606,7 +655,8 @@ const Orders = () => {
                       fontWeight: "600",
                     }}
                   >
-                    {getStatusIcon(selectedOrder.status)} {selectedOrder.status.toUpperCase()}
+                    {getStatusIcon(selectedOrder.status)}{" "}
+                    {selectedOrder.status.toUpperCase()}
                   </span>
                 </div>
                 <div>
@@ -633,7 +683,10 @@ const Orders = () => {
                       justifyContent: "space-between",
                       alignItems: "center",
                       padding: "1rem",
-                      borderBottom: index < selectedOrder.items.length - 1 ? "1px solid #e9ecef" : "none",
+                      borderBottom:
+                        index < selectedOrder.items.length - 1
+                          ? "1px solid #e9ecef"
+                          : "none",
                     }}
                   >
                     <div>
@@ -642,7 +695,9 @@ const Orders = () => {
                         ₹{item.price} × {item.quantity}
                       </div>
                     </div>
-                    <div style={{ fontWeight: "600" }}>₹{(item.price * item.quantity).toFixed(2)}</div>
+                    <div style={{ fontWeight: "600" }}>
+                      ₹{(item.price * item.quantity).toFixed(2)}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -672,8 +727,8 @@ const Orders = () => {
               {selectedOrder.status === "completed" && (
                 <button
                   onClick={() => {
-                    handleCancelOrder(selectedOrder.id)
-                    setSelectedOrder(null)
+                    handleCancelOrder(selectedOrder.id);
+                    setSelectedOrder(null);
                   }}
                   disabled={isProcessing}
                   style={{
@@ -694,7 +749,7 @@ const Orders = () => {
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default Orders
+export default Orders;
