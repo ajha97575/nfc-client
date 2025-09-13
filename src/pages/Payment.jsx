@@ -179,7 +179,7 @@ const Payment = () => {
     setPaymentStatus(null)
 
     try {
-      const response = await fetch("http://localhost:5000/api/payment/create-order", {
+      const response = await fetch("https://server-azure-five-33.vercel.app/api/payment/create-order", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -206,7 +206,7 @@ const Payment = () => {
         order_id: orderData.id,
         handler: async (response) => {
           try {
-            const verifyResponse = await fetch("http://localhost:5000/api/payment/verify", {
+            const verifyResponse = await fetch("https://server-azure-five-33.vercel.app/api/payment/verify", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
@@ -279,7 +279,7 @@ const Payment = () => {
       await createOrderWithStockValidation(orderData)
 
       try {
-        const emailResponse = await fetch("http://localhost:5000/api/payment/send-invoice", {
+        const emailResponse = await fetch("https://server-azure-five-33.vercel.app/api/payment/send-invoice", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
