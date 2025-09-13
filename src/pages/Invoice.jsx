@@ -1,30 +1,30 @@
-"use client";
+"use client"
 
-import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import html2pdf from "html2pdf.js";
+import { useState, useEffect } from "react"
+import { Link, useNavigate } from "react-router-dom"
+import html2pdf from "html2pdf.js"
 
 const Invoice = () => {
-  const [orderData, setOrderData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+  const [orderData, setOrderData] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const navigate = useNavigate()
 
   useEffect(() => {
-    document.title = "Invoice - Tip Tap Pay";
-  }, []);
+    document.title = "Invoice - Tip Tap Pay"
+  }, [])
 
   useEffect(() => {
-    const lastOrder = localStorage.getItem("lastOrder");
+    const lastOrder = localStorage.getItem("lastOrder")
     if (lastOrder) {
       try {
-        const parsedOrder = JSON.parse(lastOrder);
-        setOrderData(parsedOrder);
+        const parsedOrder = JSON.parse(lastOrder)
+        setOrderData(parsedOrder)
       } catch (error) {
-        console.error("Error parsing order data:", error);
+        console.error("Error parsing order data:", error)
       }
     }
-    setLoading(false);
-  }, []);
+    setLoading(false)
+  }, [])
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString("en-IN", {
@@ -33,15 +33,11 @@ const Invoice = () => {
       day: "numeric",
       hour: "2-digit",
       minute: "2-digit",
-    });
-  };
-
-  const handlePrint = () => {
-    window.print();
-  };
+    })
+  }
 
   const handleDownloadPDF = () => {
-    const element = document.getElementById("invoice-content");
+    const element = document.getElementById("invoice-content")
     const opt = {
       margin: [1, 0.5, 1, 0.5], // Top, Right, Bottom, Left margins in inches
       filename: `invoice-${orderData.id}.pdf`,
@@ -59,9 +55,9 @@ const Invoice = () => {
         compress: true,
       },
       pagebreak: { mode: ["avoid-all", "css", "legacy"] }, // Better page break handling
-    };
-    html2pdf().set(opt).from(element).save();
-  };
+    }
+    html2pdf().set(opt).from(element).save()
+  }
 
   if (loading) {
     return (
@@ -75,7 +71,7 @@ const Invoice = () => {
           <p>Loading invoice details...</p>
         </div>
       </div>
-    );
+    )
   }
 
   if (!orderData) {
@@ -113,7 +109,7 @@ const Invoice = () => {
           </Link>
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -127,9 +123,6 @@ const Invoice = () => {
         <Link to="/" className="nav-btn secondary">
           ← Back to Home
         </Link>
-        <button onClick={handlePrint} className="nav-btn info">
-          🖨️ Print Invoice
-        </button>
         <button onClick={handleDownloadPDF} className="nav-btn accent">
           📄 Download PDF
         </button>
@@ -226,9 +219,7 @@ const Invoice = () => {
                 >
                   <p style={{ margin: "2px 0" }}>📧 support@tiptappay.com</p>
                   <p style={{ margin: "2px 0" }}>📞 +91-9876-543-210</p>
-                  <p style={{ margin: "2px 0" }}>
-                    🏢 123 Tech Street, Digital City, India - 110001
-                  </p>
+                  <p style={{ margin: "2px 0" }}>🏢 123 Tech Street, Digital City, India - 110001</p>
                 </div>
               </div>
 
@@ -356,9 +347,7 @@ const Invoice = () => {
                     {orderData.id}
                   </span>
                 </div>
-                <div
-                  style={{ display: "flex", justifyContent: "space-between" }}
-                >
+                <div style={{ display: "flex", justifyContent: "space-between" }}>
                   <span style={{ fontWeight: "600" }}>Date:</span>
                   <span>{formatDate(orderData.date)}</span>
                 </div>
@@ -437,9 +426,7 @@ const Invoice = () => {
                     {orderData.transactionId}
                   </span>
                 </div>
-                <div
-                  style={{ display: "flex", justifyContent: "space-between" }}
-                >
+                <div style={{ display: "flex", justifyContent: "space-between" }}>
                   <span style={{ fontWeight: "600" }}>Status:</span>
                   <span
                     style={{
@@ -616,9 +603,7 @@ const Invoice = () => {
                   }}
                 >
                   <span style={{ fontWeight: "600" }}>Subtotal:</span>
-                  <span style={{ fontWeight: "600" }}>
-                    ₹{orderData.total.toFixed(2)}
-                  </span>
+                  <span style={{ fontWeight: "600" }}>₹{orderData.total.toFixed(2)}</span>
                 </div>
                 <div
                   style={{
@@ -630,9 +615,7 @@ const Invoice = () => {
                   }}
                 >
                   <span style={{ fontWeight: "600" }}>GST (18%):</span>
-                  <span style={{ fontWeight: "600" }}>
-                    ₹{orderData.tax.toFixed(2)}
-                  </span>
+                  <span style={{ fontWeight: "600" }}>₹{orderData.tax.toFixed(2)}</span>
                 </div>
                 <div
                   style={{
@@ -644,9 +627,7 @@ const Invoice = () => {
                   }}
                 >
                   <span style={{ fontWeight: "600" }}>Shipping:</span>
-                  <span style={{ color: "#059669", fontWeight: "bold" }}>
-                    Free
-                  </span>
+                  <span style={{ color: "#059669", fontWeight: "bold" }}>Free</span>
                 </div>
                 <div
                   style={{
@@ -669,9 +650,7 @@ const Invoice = () => {
                     }}
                   >
                     <span>Total Amount:</span>
-                    <span style={{ color: "#3b82f6" }}>
-                      ₹{orderData.finalTotal.toFixed(2)}
-                    </span>
+                    <span style={{ color: "#3b82f6" }}>₹{orderData.finalTotal.toFixed(2)}</span>
                   </div>
                 </div>
               </div>
@@ -717,8 +696,8 @@ const Invoice = () => {
                     lineHeight: "1.5",
                   }}
                 >
-                  Your order has been processed successfully. We appreciate your
-                  trust in Tip Tap Pay and look forward to serving you again!
+                  Your order has been processed successfully. We appreciate your trust in Tip Tap Pay and look forward
+                  to serving you again!
                 </p>
               </div>
             </div>
@@ -742,9 +721,7 @@ const Invoice = () => {
                 <p style={{ margin: "6px 0", fontWeight: "600" }}>
                   📧 For support: support@tiptappay.com | 📞 +91-9876-543-210
                 </p>
-                <p style={{ margin: "6px 0" }}>
-                  🌐 Visit us: www.tiptappay.com | Follow us on social media
-                </p>
+                <p style={{ margin: "6px 0" }}>🌐 Visit us: www.tiptappay.com | Follow us on social media</p>
                 <div
                   style={{
                     marginTop: "12px",
@@ -768,8 +745,7 @@ const Invoice = () => {
                       color: "#94a3b8",
                     }}
                   >
-                    Generated on {new Date().toLocaleString()} | Invoice ID:
-                    INV-{orderData.id}
+                    Generated on {new Date().toLocaleString()} | Invoice ID: INV-{orderData.id}
                   </p>
                 </div>
               </div>
@@ -804,7 +780,7 @@ const Invoice = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Invoice;
+export default Invoice
