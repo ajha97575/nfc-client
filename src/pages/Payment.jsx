@@ -39,7 +39,7 @@ const Payment = () => {
   }
 
   const getTaxINR = () => {
-    return Math.round(getTotalINR() * 0.18) // 18% GST in India
+    return Math.round(getTotalINR() * 0) // 18% GST in India
   }
 
   const getFinalTotalINR = () => {
@@ -818,8 +818,8 @@ const Payment = () => {
           </div>
 
           <div className="payment-item">
-            <span>GST (18%)</span>
-            <span>₹{getTaxINR().toFixed(2)}</span>
+            {/* <span>GST (18%)</span> */}
+            {/* <span>₹{getTaxINR().toFixed(2)}</span> */}
           </div>
 
           <div className="payment-item">

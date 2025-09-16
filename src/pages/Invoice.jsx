@@ -39,11 +39,11 @@ const Invoice = () => {
   const handleDownloadPDF = () => {
     const element = document.getElementById("invoice-content")
     const opt = {
-      margin: [1, 0.5, 1, 0.5], // Top, Right, Bottom, Left margins in inches
+      margin: [1, 0.5, 1, 0.5],
       filename: `invoice-${orderData.id}.pdf`,
       image: { type: "jpeg", quality: 0.95 },
       html2canvas: {
-        scale: 1.5, // Reduced scale to prevent layout issues
+        scale: 1.5,
         useCORS: true,
         allowTaint: true,
         backgroundColor: "#ffffff",
@@ -54,7 +54,7 @@ const Invoice = () => {
         orientation: "portrait",
         compress: true,
       },
-      pagebreak: { mode: ["avoid-all", "css", "legacy"] }, // Better page break handling
+      pagebreak: { mode: ["avoid-all", "css", "legacy"] },
     }
     html2pdf().set(opt).from(element).save()
   }
@@ -134,24 +134,24 @@ const Invoice = () => {
           background: "white",
           padding: "0",
           borderRadius: "0",
-          boxShadow: "none", // Removed shadow for better PDF rendering
+          boxShadow: "none",
           marginBottom: "2rem",
-          maxWidth: "800px", // Reduced width to fit better in PDF
+          maxWidth: "800px",
           margin: "0 auto 2rem auto",
-          fontFamily: "'Arial', 'Helvetica', sans-serif", // Using web-safe fonts for PDF
+          fontFamily: "'Arial', 'Helvetica', sans-serif",
           border: "1px solid #e5e7eb",
           overflow: "hidden",
-          pageBreakInside: "avoid", // Prevent page breaks inside content
+          pageBreakInside: "avoid",
         }}
       >
         <div
           style={{
-            background: "#1e40af", // Solid color instead of gradient for PDF compatibility
+            background: "#1e40af",
             color: "white",
-            padding: "30px", // Reduced padding for better space utilization
+            padding: "30px",
             position: "relative",
             overflow: "hidden",
-            pageBreakInside: "avoid", // Prevent page breaks in header
+            pageBreakInside: "avoid",
           }}
         >
           <div style={{ position: "relative", zIndex: 2 }}>
@@ -160,8 +160,8 @@ const Invoice = () => {
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "flex-start",
-                marginBottom: "20px", // Reduced margin
-                flexWrap: "wrap", // Allow wrapping on smaller screens
+                marginBottom: "20px",
+                flexWrap: "wrap",
               }}
             >
               <div style={{ flex: "1", minWidth: "300px" }}>
@@ -174,15 +174,15 @@ const Invoice = () => {
                 >
                   <div
                     style={{
-                      width: "50px", // Reduced size
+                      width: "50px",
                       height: "50px",
                       background: "rgba(255,255,255,0.2)",
-                      borderRadius: "8px", // Smaller border radius
+                      borderRadius: "8px",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
                       marginRight: "15px",
-                      fontSize: "24px", // Reduced font size
+                      fontSize: "24px",
                     }}
                   >
                     💳
@@ -227,7 +227,7 @@ const Invoice = () => {
                 <div
                   style={{
                     background: "rgba(255,255,255,0.15)",
-                    padding: "15px", // Reduced padding
+                    padding: "15px",
                     borderRadius: "10px",
                   }}
                 >
@@ -255,21 +255,19 @@ const Invoice = () => {
         </div>
 
         <div style={{ padding: "30px", pageBreakInside: "avoid" }}>
-          {" "}
-          {/* Reduced padding and added page break control */}
           <div
             style={{
               display: "grid",
               gridTemplateColumns: "1fr 1fr",
-              gap: "20px", // Reduced gap
+              gap: "20px",
               marginBottom: "30px",
               pageBreakInside: "avoid",
             }}
           >
             <div
               style={{
-                background: "#f8fafc", // Solid color instead of gradient
-                padding: "20px", // Reduced padding
+                background: "#f8fafc",
+                padding: "20px",
                 borderRadius: "10px",
                 border: "1px solid #e2e8f0",
                 position: "relative",
@@ -280,9 +278,9 @@ const Invoice = () => {
                   position: "absolute",
                   top: "10px",
                   right: "10px",
-                  width: "30px", // Reduced size
+                  width: "30px",
                   height: "30px",
-                  background: "#3b82f6", // Solid color
+                  background: "#3b82f6",
                   borderRadius: "6px",
                   display: "flex",
                   alignItems: "center",
@@ -356,7 +354,7 @@ const Invoice = () => {
 
             <div
               style={{
-                background: "#ecfdf5", // Solid color instead of gradient
+                background: "#ecfdf5",
                 padding: "20px",
                 borderRadius: "10px",
                 border: "1px solid #a7f3d0",
@@ -370,7 +368,7 @@ const Invoice = () => {
                   right: "10px",
                   width: "30px",
                   height: "30px",
-                  background: "#10b981", // Solid color
+                  background: "#10b981",
                   borderRadius: "6px",
                   display: "flex",
                   alignItems: "center",
@@ -583,11 +581,9 @@ const Invoice = () => {
             }}
           >
             <div style={{ minWidth: "350px" }}>
-              {" "}
-              {/* Reduced width */}
               <div
                 style={{
-                  background: "#f8fafc", // Solid color instead of gradient
+                  background: "#f8fafc",
                   padding: "25px",
                   borderRadius: "15px",
                   border: "2px solid #e2e8f0",
@@ -604,18 +600,6 @@ const Invoice = () => {
                 >
                   <span style={{ fontWeight: "600" }}>Subtotal:</span>
                   <span style={{ fontWeight: "600" }}>₹{orderData.total.toFixed(2)}</span>
-                </div>
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    marginBottom: "12px",
-                    fontSize: "15px",
-                    color: "#475569",
-                  }}
-                >
-                  <span style={{ fontWeight: "600" }}>GST (18%):</span>
-                  <span style={{ fontWeight: "600" }}>₹{orderData.tax.toFixed(2)}</span>
                 </div>
                 <div
                   style={{
@@ -640,7 +624,7 @@ const Invoice = () => {
                     style={{
                       display: "flex",
                       justifyContent: "space-between",
-                      fontSize: "20px", // Reduced font size
+                      fontSize: "20px",
                       fontWeight: "bold",
                       color: "#1e293b",
                       background: "white",
@@ -650,7 +634,7 @@ const Invoice = () => {
                     }}
                   >
                     <span>Total Amount:</span>
-                    <span style={{ color: "#3b82f6" }}>₹{orderData.finalTotal.toFixed(2)}</span>
+                    <span style={{ color: "#3b82f6" }}>₹{orderData.total.toFixed(2)}</span>
                   </div>
                 </div>
               </div>
@@ -666,7 +650,7 @@ const Invoice = () => {
           >
             <div
               style={{
-                background: "#fef3c7", // Solid color instead of gradient
+                background: "#fef3c7",
                 padding: "25px",
                 borderRadius: "15px",
                 marginBottom: "25px",
@@ -680,7 +664,7 @@ const Invoice = () => {
                 <h3
                   style={{
                     margin: "0 0 12px 0",
-                    fontSize: "20px", // Reduced font size
+                    fontSize: "20px",
                     fontWeight: "bold",
                     color: "#92400e",
                   }}

@@ -150,16 +150,6 @@ const Cart = () => {
                 margin: "0.5rem 0",
               }}
             >
-              <span>GST (18%):</span>
-              <span>₹{(getTotal() * 0.18).toFixed(2)}</span>
-            </div>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                margin: "0.5rem 0",
-              }}
-            >
               <span>Shipping:</span>
               <span>Free</span>
             </div>
@@ -167,7 +157,7 @@ const Cart = () => {
           </div>
 
           <div className="total-amount">
-            Total: ₹{(getTotal() * 1.18).toFixed(2)}
+            Total: ₹{getTotal().toFixed(2)}
           </div>
 
           <button
