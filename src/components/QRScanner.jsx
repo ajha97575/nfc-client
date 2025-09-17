@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import QrScanner from "qr-scanner";
 import { useCart } from "../utils/CartContext.jsx";
 import { getProductById } from "../utils/productData.js";
@@ -10,6 +10,7 @@ import {
   playSuccessSound,
   preloadAudio,
 } from "../utils/soundUtils.js";
+import "../styles/scanner.css";
 
 const QRScannerComponent = ({ isActive = true, onProductAdded }) => {
   const videoRef = useRef(null);
@@ -17,6 +18,7 @@ const QRScannerComponent = ({ isActive = true, onProductAdded }) => {
   const [isScanning, setIsScanning] = useState(false);
   const [scanStatus, setScanStatus] = useState("idle");
   const [lastScanned, setLastScanned] = useState("");
+  const [cameraError, setCameraError] = useState(false);
   const { addItemOnce, isItemInCart } = useCart();
 
   useEffect(() => {
@@ -44,17 +46,20 @@ const QRScannerComponent = ({ isActive = true, onProductAdded }) => {
               highlightScanRegion: false,
               highlightCodeOutline: false,
               preferredCamera: "environment",
+              maxScansPerSecond: 2,
+              returnDetailedScanResult: true,
             }
           );
 
           await scannerRef.current.start();
           setIsScanning(true);
-          console.log("QR Scanner activated!");
-          console.log("📷 QR Scanner started");
+          setCameraError(false);
+          console.log("📷 QR Scanner started successfully");
         }
       } catch (error) {
         console.error("Error starting scanner:", error);
-        console.log("Camera access denied or not available");
+        setCameraError(true);
+        setIsScanning(false);
       }
     };
 
@@ -86,7 +91,7 @@ const QRScannerComponent = ({ isActive = true, onProductAdded }) => {
       if (product) {
         if (isItemInCart(product.id)) {
           setTimeout(() => {
-            setScanStatus("error");
+            setScanStatus("duplicate");
             console.log(`${product.name} is already in your cart!`);
 
             setTimeout(() => {
@@ -136,18 +141,37 @@ const QRScannerComponent = ({ isActive = true, onProductAdded }) => {
     }
   };
 
+  const retryCamera = async () => {
+    if (scannerRef.current) {
+      try {
+        await scannerRef.current.start();
+        setIsScanning(true);
+        setCameraError(false);
+      } catch (error) {
+        console.error("Failed to restart camera:", error);
+      }
+    }
+  };
+
   if (!isActive) {
     return (
       <motion.div
         className="scanner-container"
-        initial={{ opacity: 0.5 }}
-        animate={{ opacity: 0.5 }}
+        initial={{ opacity: 0.7 }}
+        animate={{ opacity: 0.7 }}
         style={{ pointerEvents: "none" }}
       >
-        <div className="empty-state" style={{ height: "400px" }}>
-          <div className="empty-state-icon">📷</div>
-          <h3>Scanner Disabled</h3>
-          <p>Click "Add More Products" to activate</p>
+        <div className="scanner-placeholder">
+          <div className="scanner-placeholder-icon">
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+            >
+              📷
+            </motion.div>
+          </div>
+          <h3>Scanner Inactive</h3>
+          <p>Activate scanner to begin adding products</p>
         </div>
       </motion.div>
     );
@@ -156,11 +180,20 @@ const QRScannerComponent = ({ isActive = true, onProductAdded }) => {
   return (
     <motion.div
       className="scanner-container"
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <video ref={videoRef} className="scanner-video" playsInline muted />
+      <video 
+        ref={videoRef} 
+        className="scanner-video" 
+        playsInline 
+        muted 
+        style={{ 
+          filter: isScanning ? 'none' : 'grayscale(1) blur(2px)',
+          transform: isScanning ? 'scale(1.02)' : 'scale(1)'
+        }}
+      />
 
       <div className="scanner-overlay">
         <motion.div
@@ -168,47 +201,97 @@ const QRScannerComponent = ({ isActive = true, onProductAdded }) => {
           animate={{
             scale:
               scanStatus === "scanning"
-                ? 1.05
+                ? [1, 1.03, 1]
                 : scanStatus === "success"
-                ? 1.1
+                ? [1, 1.1, 1]
                 : 1,
           }}
-          transition={{ duration: 0.3 }}
+          transition={{ duration: 0.5 }}
         >
-          <div className="scan-corners"></div>
+          <div className="scan-line"></div>
+          <div className="corner top-left"></div>
+          <div className="corner top-right"></div>
+          <div className="corner bottom-left"></div>
+          <div className="corner bottom-right"></div>
         </motion.div>
       </div>
 
-      <div
-        style={{
-          position: "absolute",
-          bottom: "20px",
-          left: "50%",
-          transform: "translateX(-50%)",
-          color: "white",
-          background: "rgba(0,0,0,0.8)",
-          padding: "0.75rem 1.5rem",
-          borderRadius: "var(--radius-xl)",
-          fontSize: "0.875rem",
-          textAlign: "center",
-          backdropFilter: "blur(10px)",
-        }}
-      >
-        {isScanning ? "Point camera at QR code" : "Starting camera..."}
-      </div>
+      <AnimatePresence>
+        {cameraError && (
+          <motion.div
+            className="camera-error-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <div className="camera-error-content">
+              <div className="error-icon">❌</div>
+              <h3>Camera Access Required</h3>
+              <p>Please allow camera permissions to use the scanner</p>
+              <button className="retry-button" onClick={retryCamera}>
+                Retry
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      <div
-        className="badge info"
-        style={{ position: "absolute", top: "1rem", right: "1rem" }}
-      >
-        🔊 Sound Ready
-      </div>
+      <AnimatePresence>
+        {scanStatus !== "idle" && (
+          <motion.div
+            className={`scan-status ${scanStatus}`}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+          >
+            {scanStatus === "scanning" && (
+              <div className="status-content">
+                <div className="loading-spinner"></div>
+                <p>Processing QR code...</p>
+              </div>
+            )}
+            {scanStatus === "success" && (
+              <div className="status-content">
+                <div className="status-icon">✅</div>
+                <p>Product added to cart!</p>
+              </div>
+            )}
+            {scanStatus === "error" && (
+              <div className="status-content">
+                <div className="status-icon">❌</div>
+                <p>Product not found</p>
+              </div>
+            )}
+            {scanStatus === "duplicate" && (
+              <div className="status-content">
+                <div className="status-icon">⚠️</div>
+                <p>Product already in cart</p>
+              </div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      <div
-        className={`badge ${isScanning ? "secondary" : "warning"}`}
-        style={{ position: "absolute", top: "1rem", left: "1rem" }}
-      >
-        📷 {isScanning ? "ACTIVE" : "STARTING"}
+      <div className="scanner-footer">
+        <div className="scanner-instruction">
+          {isScanning 
+            ? "Align QR code within the frame" 
+            : cameraError 
+              ? "Camera access needed" 
+              : "Initializing camera..."
+          }
+        </div>
+        
+        <div className="scanner-indicators">
+          <div className={`indicator ${isScanning ? "active" : ""}`}>
+            <span className="indicator-dot"></span>
+            Camera {isScanning ? "Active" : "Inactive"}
+          </div>
+          <div className="indicator">
+            <span className="indicator-dot audio"></span>
+            Audio Ready
+          </div>
+        </div>
       </div>
     </motion.div>
   );

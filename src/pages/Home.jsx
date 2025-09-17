@@ -9,6 +9,8 @@ import { useCart } from "../utils/CartContext.jsx";
 import NFCReaderComponent from "../components/NFCReader.jsx";
 import { updatePageMeta, scrollToTop } from "../utils/pageUtils.js";
 
+import "../styles/header.css";
+
 const Home = () => {
   const { getItemCount, items, clearCart } = useCart();
   const [isScannerActive, setIsScannerActive] = useState(true);

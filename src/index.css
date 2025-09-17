@@ -68,7 +68,7 @@ body {
 }
 
 /* Modern Header */
-.header {
+/* .header {
   background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
   color: white;
   padding: 2rem;
@@ -102,7 +102,7 @@ body {
   font-size: 1.125rem;
   opacity: 0.9;
   font-weight: 400;
-}
+} */
 
 /* Modern Navigation Buttons */
 .nav-buttons {
@@ -220,7 +220,7 @@ body {
   box-shadow: var(--shadow-xl);
 }
 
-/* Scanner Styles */
+/* Scanner Styles
 .scanner-container {
   position: relative;
   max-width: 500px;
@@ -327,7 +327,7 @@ body {
   75% {
     transform: translateX(10px);
   }
-}
+} */
 
 /* Cart Styles */
 .cart-container {
