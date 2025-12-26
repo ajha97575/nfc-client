@@ -330,14 +330,15 @@ const ManualProductEntry = ({ onProductAdded }) => {
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+                gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
                 gap: "1.5rem",
-                maxHeight: "500px",
+                maxHeight: "650px",
                 overflowY: "auto",
                 padding: "1rem",
                 background: "var(--bg-secondary)",
                 borderRadius: "var(--radius-xl)",
                 border: "1px solid var(--border-light)",
+                alignItems: "stretch",
               }}
             >
               <AnimatePresence>
@@ -345,28 +346,52 @@ const ManualProductEntry = ({ onProductAdded }) => {
                   filteredProducts.map((product, index) => (
                     <motion.div
                       key={product.id}
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.9 }}
-                      transition={{ delay: index * 0.05 }}
-                      className="card"
+                      className="card product-card"
                       style={{
                         padding: "1.5rem",
                         position: "relative",
-                        background: isItemInCart(product.id) ? "rgba(16, 185, 129, 0.05)" : "var(--bg-primary)",
-                        border: isItemInCart(product.id)
-                          ? "2px solid var(--secondary-color)"
-                          : "1px solid var(--border-light)",
+                        overflow: "hidden",
+                        border: "1px solid var(--border-light)",
+                        background: "var(--bg-card)",
+                        display: "flex",
+                        flexDirection: "column",
+                        minHeight: "400px",
+                        cursor: "pointer",
+                        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                       }}
-                      whileHover={{ y: -4, boxShadow: "var(--shadow-xl)" }}
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 0.95 }}
+                      transition={{ duration: 0.1, delay: index * 0 }}
+                      whileHover={{
+                        y: -8,
+                        scale: 1.02,
+                        boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+                      }}
                       whileTap={{ scale: 0.98 }}
                     >
+                      <div
+                        className="product-card-overlay"
+                        style={{
+                          position: "absolute",
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          background: "linear-gradient(135deg, rgba(79, 70, 229, 0.03), rgba(14, 165, 233, 0.03))",
+                          opacity: 0,
+                          transition: "opacity 0.3s ease",
+                          pointerEvents: "none",
+                          zIndex: 0,
+                        }}
+                      />
+
                       <div
                         className="badge primary"
                         style={{
                           position: "absolute",
                           top: "1rem",
                           right: "1rem",
+                          zIndex: 1,
                         }}
                       >
                         {product.id}
@@ -379,25 +404,45 @@ const ManualProductEntry = ({ onProductAdded }) => {
                             position: "absolute",
                             top: "1rem",
                             left: "1rem",
+                            zIndex: 1,
                           }}
                         >
                           {product.category}
                         </div>
                       )}
 
-                      <div style={{ marginTop: "2rem" }}>
-                        <SmartImage
-                          src={product.image}
-                          alt={product.name}
+                      <div
+                        style={{
+                          marginTop: "2rem",
+                          display: "flex",
+                          flexDirection: "column",
+                          flex: 1,
+                          position: "relative",
+                          zIndex: 1,
+                        }}
+                      >
+                        <div
+                          className="product-card-img-container"
                           style={{
-                            width: "100%",
-                            height: "120px",
-                            objectFit: "cover",
+                            overflow: "hidden",
                             borderRadius: "var(--radius-lg)",
                             marginBottom: "1rem",
                           }}
-                          fallbackSrc="/placeholder.svg?height=120&width=300&text=Product+Image"
-                        />
+                        >
+                          <SmartImage
+                            src={product.image}
+                            alt={product.name}
+                            className="product-card-img"
+                            style={{
+                              width: "100%",
+                              height: "120px",
+                              objectFit: "cover",
+                              borderRadius: "var(--radius-lg)",
+                              transition: "transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
+                            }}
+                            fallbackSrc="/placeholder.svg?height=120&width=300&text=Product+Image"
+                          />
+                        </div>
 
                         <h5
                           style={{
@@ -457,6 +502,7 @@ const ManualProductEntry = ({ onProductAdded }) => {
                             justifyContent: "center",
                             opacity: product.stock === 0 ? 0.5 : 1,
                             cursor: product.stock === 0 ? "not-allowed" : "pointer",
+                            marginTop: "auto",
                           }}
                           onClick={(e) => {
                             if (product.stock === 0) {
@@ -467,13 +513,19 @@ const ManualProductEntry = ({ onProductAdded }) => {
                           }}
                           disabled={product.stock === 0}
                         >
-                          {isItemInCart(product.id)
-                            ? <FontAwesomeIcon icon={faCircleCheck} style={{ marginRight: "0.5rem" }} /> + " In Cart"
-                            : product.stock === 0
-                              ? <FontAwesomeIcon icon={faCircleXmark} style={{ marginRight: "0.5rem" }} /> +
-                                " Out of Stock"
-                              : <FontAwesomeIcon icon={faCartPlus} style={{ marginRight: "0.5rem" }} /> +
-                                " Add to Cart"}
+                          {isItemInCart(product.id) ? (
+                            <>
+                              <FontAwesomeIcon icon={faCircleCheck} style={{ marginRight: "0.5rem" }} /> In Cart
+                            </>
+                          ) : product.stock === 0 ? (
+                            <>
+                              <FontAwesomeIcon icon={faCircleXmark} style={{ marginRight: "0.5rem" }} /> Out of Stock
+                            </>
+                          ) : (
+                            <>
+                              <FontAwesomeIcon icon={faCartPlus} style={{ marginRight: "0.5rem" }} /> Add to Cart
+                            </>
+                          )}
                         </button>
                       </div>
                     </motion.div>
