@@ -4,6 +4,17 @@ import { useState, useEffect } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { useCart } from "../utils/CartContext.jsx"
 import { createOrderWithStockValidation, validateBulkStock } from "../utils/productData.js"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import {
+  faTriangleExclamation,
+  faBox,
+  faCartShopping,
+  faArrowsRotate,
+  faLightbulb,
+  faCircleCheck,
+  faCircleXmark,
+  faFileInvoice,
+} from "@fortawesome/free-solid-svg-icons"
 
 const Payment = () => {
   const { items, getTotal, clearCart } = useCart()
@@ -378,7 +389,9 @@ const Payment = () => {
     return (
       <div className="container">
         <div className="header" style={{ background: "linear-gradient(135deg, #ff9800 0%, #f57c00 100%)" }}>
-          <h1>⚠️ Stock Unavailable</h1>
+          <h1>
+            <FontAwesomeIcon icon={faTriangleExclamation} /> Stock Unavailable
+          </h1>
           <p>Some items in your cart are no longer available</p>
         </div>
 
@@ -393,7 +406,9 @@ const Payment = () => {
               marginBottom: "2rem",
             }}
           >
-            <div style={{ fontSize: "4rem", marginBottom: "1rem" }}>📦</div>
+            <div style={{ fontSize: "4rem", marginBottom: "1rem" }}>
+              <FontAwesomeIcon icon={faBox} />
+            </div>
             <h2 style={{ color: "#856404", marginBottom: "1rem" }}>Inventory Update Required</h2>
             <p style={{ color: "#856404", fontSize: "16px", marginBottom: "1rem" }}>{stockValidationError.message}</p>
 
@@ -442,7 +457,7 @@ const Payment = () => {
                   marginBottom: "1rem",
                 }}
               >
-                🛒 Update Cart
+                <FontAwesomeIcon icon={faCartShopping} /> Update Cart
               </Link>
 
               <button
@@ -459,7 +474,7 @@ const Payment = () => {
                   marginBottom: "1rem",
                 }}
               >
-                🔄 Check Again
+                <FontAwesomeIcon icon={faArrowsRotate} /> Check Again
               </button>
             </div>
 
@@ -473,7 +488,9 @@ const Payment = () => {
                 color: "#0d47a1",
               }}
             >
-              <h4>💡 What happened?</h4>
+              <h4>
+                <FontAwesomeIcon icon={faLightbulb} /> What happened?
+              </h4>
               <p style={{ margin: "0.5rem 0", fontSize: "14px" }}>
                 Our real-time inventory system detected that some items in your cart are no longer available in the
                 requested quantities. This prevents overselling and ensures accurate stock levels.
@@ -489,7 +506,9 @@ const Payment = () => {
     return (
       <div className="container">
         <div className="header" style={{ background: "linear-gradient(135deg, #4CAF50 0%, #45a049 100%)" }}>
-          <h1>✅ Payment Successful!</h1>
+          <h1>
+            <FontAwesomeIcon icon={faCircleCheck} /> Payment Successful!
+          </h1>
           <p>Your order has been confirmed and inventory updated</p>
         </div>
 
@@ -504,7 +523,9 @@ const Payment = () => {
               marginBottom: "2rem",
             }}
           >
-            <div style={{ fontSize: "4rem", marginBottom: "1rem" }}>🎉</div>
+            <div style={{ fontSize: "4rem", marginBottom: "1rem" }}>
+              <FontAwesomeIcon icon={faCircleCheck} style={{ color: "#28a745" }} />
+            </div>
             <h2 style={{ color: "#155724", marginBottom: "1rem" }}>Payment Completed Successfully!</h2>
             <p style={{ color: "#155724", fontSize: "18px", marginBottom: "1rem" }}>
               Thank you for your order. Your payment has been processed and inventory has been updated in real-time.
@@ -538,7 +559,7 @@ const Payment = () => {
                     <strong>Items:</strong> {orderDetails.items.length} items
                   </p>
                   <p>
-                    <strong>Status:</strong> ✅ Confirmed & Stock Updated
+                    <strong>Status:</strong> <FontAwesomeIcon icon={faCircleCheck} /> Confirmed & Stock Updated
                   </p>
                 </div>
               </div>
@@ -560,7 +581,7 @@ const Payment = () => {
                   marginBottom: "1rem",
                 }}
               >
-                📄 Download Invoice
+                <FontAwesomeIcon icon={faFileInvoice} /> Download Invoice
               </button>
 
               <Link
@@ -578,7 +599,7 @@ const Payment = () => {
                   marginBottom: "1rem",
                 }}
               >
-                🛒 Continue Shopping
+                <FontAwesomeIcon icon={faCartShopping} /> Continue Shopping
               </Link>
             </div>
 
@@ -595,7 +616,9 @@ const Payment = () => {
     return (
       <div className="container">
         <div className="header" style={{ background: "linear-gradient(135deg, #f44336 0%, #d32f2f 100%)" }}>
-          <h1>❌ Payment Failed</h1>
+          <h1>
+            <FontAwesomeIcon icon={faCircleXmark} /> Payment Failed
+          </h1>
           <p>There was an issue with your payment</p>
         </div>
 
@@ -610,7 +633,9 @@ const Payment = () => {
               marginBottom: "2rem",
             }}
           >
-            <div style={{ fontSize: "4rem", marginBottom: "1rem" }}>😞</div>
+            <div style={{ fontSize: "4rem", marginBottom: "1rem" }}>
+              <FontAwesomeIcon icon={faCircleXmark} style={{ color: "#dc3545" }} />
+            </div>
             <h2 style={{ color: "#721c24", marginBottom: "1rem" }}>Payment Could Not Be Processed</h2>
             <p style={{ color: "#721c24", fontSize: "16px", marginBottom: "1rem" }}>{errorMessage}</p>
 
@@ -649,7 +674,7 @@ const Payment = () => {
                   marginBottom: "1rem",
                 }}
               >
-                🔄 Retry Payment
+                <FontAwesomeIcon icon={faArrowsRotate} /> Retry Payment
               </button>
 
               <Link
@@ -667,7 +692,7 @@ const Payment = () => {
                   marginBottom: "1rem",
                 }}
               >
-                🛒 Back to Cart
+                <FontAwesomeIcon icon={faCartShopping} /> Back to Cart
               </Link>
             </div>
 

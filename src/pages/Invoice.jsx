@@ -3,6 +3,16 @@
 import { useState, useEffect } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import html2pdf from "html2pdf.js"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import {
+  faFileInvoice,
+  faArrowsRotate,
+  faArrowLeft,
+  faCreditCard,
+  faClipboardList,
+  faCartShopping,
+  faCircleCheck,
+} from "@fortawesome/free-solid-svg-icons"
 
 const Invoice = () => {
   const [orderData, setOrderData] = useState(null)
@@ -63,11 +73,15 @@ const Invoice = () => {
     return (
       <div className="container">
         <div className="header">
-          <h1>📄 Invoice</h1>
+          <h1>
+            <FontAwesomeIcon icon={faFileInvoice} /> Invoice
+          </h1>
           <p>Loading your invoice...</p>
         </div>
         <div style={{ textAlign: "center", padding: "3rem" }}>
-          <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>🔄</div>
+          <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>
+            <FontAwesomeIcon icon={faArrowsRotate} spin />
+          </div>
           <p>Loading invoice details...</p>
         </div>
       </div>
@@ -78,18 +92,22 @@ const Invoice = () => {
     return (
       <div className="container">
         <div className="header">
-          <h1>📄 Invoice</h1>
+          <h1>
+            <FontAwesomeIcon icon={faFileInvoice} /> Invoice
+          </h1>
           <p>No invoice data found</p>
         </div>
 
         <div className="nav-buttons">
           <Link to="/" className="nav-btn secondary">
-            ← Back to Home
+            <FontAwesomeIcon icon={faArrowLeft} /> Back to Home
           </Link>
         </div>
 
         <div style={{ textAlign: "center", padding: "3rem" }}>
-          <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>📄</div>
+          <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>
+            <FontAwesomeIcon icon={faFileInvoice} />
+          </div>
           <h3>No Invoice Found</h3>
           <p style={{ color: "#666", marginBottom: "1.5rem" }}>
             No recent order data found. Please complete a purchase first.
@@ -115,16 +133,18 @@ const Invoice = () => {
   return (
     <div className="container">
       <div className="header">
-        <h1>📄 Invoice</h1>
+        <h1>
+          <FontAwesomeIcon icon={faFileInvoice} /> Invoice
+        </h1>
         <p>Order #{orderData.id}</p>
       </div>
 
       <div className="nav-buttons">
         <Link to="/" className="nav-btn secondary">
-          ← Back to Home
+          <FontAwesomeIcon icon={faArrowLeft} /> Back to Home
         </Link>
         <button onClick={handleDownloadPDF} className="nav-btn accent">
-          📄 Download PDF
+          <FontAwesomeIcon icon={faFileInvoice} /> Download PDF
         </button>
       </div>
 
@@ -185,7 +205,7 @@ const Invoice = () => {
                       fontSize: "24px",
                     }}
                   >
-                    💳
+                    <FontAwesomeIcon icon={faCreditCard} />
                   </div>
                   <div>
                     <h1
@@ -286,9 +306,10 @@ const Invoice = () => {
                   alignItems: "center",
                   justifyContent: "center",
                   fontSize: "14px",
+                  color: "white",
                 }}
               >
-                📋
+                <FontAwesomeIcon icon={faClipboardList} />
               </div>
               <h3
                 style={{
@@ -374,9 +395,10 @@ const Invoice = () => {
                   alignItems: "center",
                   justifyContent: "center",
                   fontSize: "14px",
+                  color: "white",
                 }}
               >
-                💳
+                <FontAwesomeIcon icon={faCreditCard} />
               </div>
               <h3
                 style={{
@@ -436,7 +458,7 @@ const Invoice = () => {
                       fontSize: "12px",
                     }}
                   >
-                    ✅ {orderData.status.toUpperCase()}
+                    <FontAwesomeIcon icon={faCircleCheck} /> {orderData.status.toUpperCase()}
                   </span>
                 </div>
               </div>
@@ -453,7 +475,9 @@ const Invoice = () => {
                 alignItems: "center",
               }}
             >
-              <span style={{ marginRight: "8px", fontSize: "20px" }}>🛒</span>
+              <span style={{ marginRight: "8px", fontSize: "20px" }}>
+                <FontAwesomeIcon icon={faCartShopping} />
+              </span>
               Order Items
             </h3>
             <div

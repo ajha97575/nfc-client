@@ -1,27 +1,25 @@
-"use client";
+"use client"
 
-import { Link, useNavigate } from "react-router-dom";
-import { useCart } from "../utils/CartContext.jsx";
+import { Link, useNavigate } from "react-router-dom"
+import { useCart } from "../utils/CartContext.jsx"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faArrowLeft, faShoppingCart, faTrashCan, faCreditCard, faFloppyDisk } from "@fortawesome/free-solid-svg-icons"
 
 const Cart = () => {
-  const { items, removeItem, updateQuantity, getTotal, clearCart } = useCart();
-  const navigate = useNavigate();
+  const { items, removeItem, updateQuantity, getTotal, clearCart } = useCart()
+  const navigate = useNavigate()
 
   const handleCheckout = () => {
     if (items.length > 0) {
-      navigate("/payment");
+      navigate("/payment")
     }
-  };
+  }
 
   const handleClearCart = () => {
-    if (
-      window.confirm(
-        "Are you sure you want to clear your cart? This action cannot be undone."
-      )
-    ) {
-      clearCart();
+    if (window.confirm("Are you sure you want to clear your cart? This action cannot be undone.")) {
+      clearCart()
     }
-  };
+  }
 
   if (items.length === 0) {
     return (
@@ -32,29 +30,27 @@ const Cart = () => {
 
         <div className="nav-buttons">
           <Link to="/" className="nav-btn secondary">
-            ← Back to Home
+            <FontAwesomeIcon icon={faArrowLeft} /> Back to Home
           </Link>
           <Link to="/scanner" className="nav-btn">
-            🛒 Start Shopping
+            <FontAwesomeIcon icon={faShoppingCart} /> Start Shopping
           </Link>
         </div>
 
         <div className="cart-container">
           <div className="empty-cart">
-            <div className="empty-cart-icon">🛒</div>
+            <div className="empty-cart-icon">
+              <FontAwesomeIcon icon={faShoppingCart} />
+            </div>
             <h2>Your cart is empty</h2>
             <p>Scan some QR codes to add products!</p>
-            <Link
-              to="/scanner"
-              className="nav-btn"
-              style={{ marginTop: "1rem" }}
-            >
+            <Link to="/scanner" className="nav-btn" style={{ marginTop: "1rem" }}>
               Start Scanning Products
             </Link>
           </div>
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -68,13 +64,13 @@ const Cart = () => {
 
       <div className="nav-buttons">
         <Link to="/" className="nav-btn secondary">
-          ← Back to Home
+          <FontAwesomeIcon icon={faArrowLeft} /> Back to Home
         </Link>
         <Link to="/scanner" className="nav-btn">
-          ← Continue Shopping
+          <FontAwesomeIcon icon={faArrowLeft} /> Continue Shopping
         </Link>
         <button onClick={handleClearCart} className="nav-btn danger">
-          🗑️ Clear Cart
+          <FontAwesomeIcon icon={faTrashCan} /> Clear Cart
         </button>
       </div>
 
@@ -85,12 +81,8 @@ const Cart = () => {
 
             <div className="cart-item-details">
               <div className="cart-item-name">{item.name}</div>
-              <div className="cart-item-price">
-                ₹{item.price.toFixed(2)} each
-              </div>
-              <div
-                style={{ fontSize: "12px", color: "#666", marginTop: "4px" }}
-              >
+              <div className="cart-item-price">₹{item.price.toFixed(2)} each</div>
+              <div style={{ fontSize: "12px", color: "#666", marginTop: "4px" }}>
                 Subtotal: ₹{(item.price * item.quantity).toFixed(2)}
               </div>
 
@@ -116,17 +108,14 @@ const Cart = () => {
                 >
                   {item.quantity}
                 </span>
-                <button
-                  className="quantity-btn"
-                  onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                >
+                <button className="quantity-btn" onClick={() => updateQuantity(item.id, item.quantity + 1)}>
                   +
                 </button>
               </div>
             </div>
 
             <button className="remove-btn" onClick={() => removeItem(item.id)}>
-              🗑️ Remove
+              <FontAwesomeIcon icon={faTrashCan} /> Remove
             </button>
           </div>
         ))}
@@ -156,16 +145,10 @@ const Cart = () => {
             <hr style={{ margin: "1rem 0" }} />
           </div>
 
-          <div className="total-amount">
-            Total: ₹{getTotal().toFixed(2)}
-          </div>
+          <div className="total-amount">Total: ₹{getTotal().toFixed(2)}</div>
 
-          <button
-            className="nav-btn"
-            style={{ marginTop: "1rem", fontSize: "1.2rem" }}
-            onClick={handleCheckout}
-          >
-            💳 Proceed to Checkout
+          <button className="nav-btn" style={{ marginTop: "1rem", fontSize: "1.2rem" }} onClick={handleCheckout}>
+            <FontAwesomeIcon icon={faCreditCard} /> Proceed to Checkout
           </button>
         </div>
       </div>
@@ -183,11 +166,11 @@ const Cart = () => {
           textAlign: "center",
         }}
       >
-        💾 Your cart is automatically saved and will persist even if you refresh
+        <FontAwesomeIcon icon={faFloppyDisk} /> Your cart is automatically saved and will persist even if you refresh
         the browser!
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Cart;
+export default Cart

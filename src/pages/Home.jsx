@@ -1,67 +1,83 @@
-"use client";
+"use client"
 
-import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
-import QRScannerComponent from "../components/QRScanner.jsx";
-import ManualProductEntry from "../components/ManualProductEntry.jsx";
-import { useCart } from "../utils/CartContext.jsx";
-import NFCReaderComponent from "../components/NFCReader.jsx";
-import { updatePageMeta, scrollToTop } from "../utils/pageUtils.js";
+import { useState, useEffect } from "react"
+import { Link } from "react-router-dom"
+import { motion, AnimatePresence } from "framer-motion"
+import QRScannerComponent from "../components/QRScanner.jsx"
+import ManualProductEntry from "../components/ManualProductEntry.jsx"
+import NFCReaderComponent from "../components/NFCReader.jsx"
+import { updatePageMeta, scrollToTop } from "../utils/pageUtils.js"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import {
+  faRocket,
+  faArrowLeft,
+  faShoppingCart,
+  faCreditCard,
+  faMobileAlt,
+  faQrcode,
+  faFilePen,
+  faTrashCan,
+  faCircleCheck,
+  faBookOpen,
+  faUtensils,
+  faLaptop,
+  faShirt,
+  faBook,
+  faHouse,
+  faFutbol,
+  faWandMagicSparkles,
+} from "@fortawesome/free-solid-svg-icons"
+import { useCart } from "../utils/CartContext.jsx" // Corrected import for useCart
 
-import "../styles/header.css";
+import "../styles/header.css"
 
 const Home = () => {
-  const { getItemCount, items, clearCart } = useCart();
-  const [isScannerActive, setIsScannerActive] = useState(true);
-  const [lastAddedProduct, setLastAddedProduct] = useState(null);
-  const [showManualEntry, setShowManualEntry] = useState(false);
-  const [scanMode, setScanMode] = useState("qr"); // "qr" or "nfc"
+  const { getItemCount, items, clearCart } = useCart() // Use the imported hook
+  const [isScannerActive, setIsScannerActive] = useState(true)
+  const [lastAddedProduct, setLastAddedProduct] = useState(null)
+  const [showManualEntry, setShowManualEntry] = useState(false)
+  const [scanMode, setScanMode] = useState("qr") // "qr" or "nfc"
 
   useEffect(() => {
     updatePageMeta(
       "Scanner - QR & NFC Scanner",
-      "Scan QR codes and NFC tags to add products to your cart. Modern shopping experience with instant product recognition."
-    );
-    scrollToTop();
-  }, []);
+      "Scan QR codes and NFC tags to add products to your cart. Modern shopping experience with instant product recognition.",
+    )
+    scrollToTop()
+  }, [])
 
   const handleProductAdded = (product) => {
-    setLastAddedProduct(product);
-    setIsScannerActive(false);
+    setLastAddedProduct(product)
+    setIsScannerActive(false)
 
-    console.log(`✅ ${product.name} added to cart!`);
-  };
+    console.log(`✅ ${product.name} added to cart!`)
+  }
 
   const handleAddMoreProducts = () => {
-    setIsScannerActive(true);
-    setLastAddedProduct(null);
-    console.log("Scanner activated! Ready to scan more products.");
-  };
+    setIsScannerActive(true)
+    setLastAddedProduct(null)
+    console.log("Scanner activated! Ready to scan more products.")
+  }
 
   const handleClearCart = () => {
-    clearCart();
+    clearCart()
     if (window.resetScannedProducts) {
-      window.resetScannedProducts();
+      window.resetScannedProducts()
     }
-    setLastAddedProduct(null);
-    setIsScannerActive(true);
-    console.log("Cart cleared successfully!");
-  };
+    setLastAddedProduct(null)
+    setIsScannerActive(true)
+    console.log("Cart cleared successfully!")
+  }
 
   const toggleManualEntry = () => {
-    setShowManualEntry(!showManualEntry);
-    console.log(
-      showManualEntry ? "Scanner mode activated" : "Manual entry mode activated"
-    );
-  };
+    setShowManualEntry(!showManualEntry)
+    console.log(showManualEntry ? "Scanner mode activated" : "Manual entry mode activated")
+  }
 
   const handleScanModeChange = (mode) => {
-    setScanMode(mode);
-    console.log(
-      mode === "qr" ? "QR Scanner activated" : "NFC Reader activated"
-    );
-  };
+    setScanMode(mode)
+    console.log(mode === "qr" ? "QR Scanner activated" : "NFC Reader activated")
+  }
 
   return (
     <div className="container">
@@ -71,7 +87,9 @@ const Home = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        <h1>🚀 Tip Tap Pay Scanner</h1>
+        <h1>
+          <FontAwesomeIcon icon={faRocket} /> Tip Tap Pay Scanner
+        </h1>
         <p>Scan QR codes & NFC tags to add products instantly</p>
       </motion.div>
 
@@ -82,47 +100,68 @@ const Home = () => {
         transition={{ duration: 0.6, delay: 0.1 }}
       >
         <Link to="/" className="nav-btn secondary">
-          ← Back to Home
+          <FontAwesomeIcon icon={faArrowLeft} /> Back to Home
         </Link>
 
         <Link to="/cart" className="nav-btn secondary">
-          🛒 Cart ({getItemCount()})
+          <FontAwesomeIcon icon={faShoppingCart} /> Cart ({getItemCount()})
         </Link>
 
         {items.length > 0 && (
           <Link to="/cart" className="nav-btn primary">
-            💳 Checkout
+            <FontAwesomeIcon icon={faCreditCard} /> Checkout
           </Link>
         )}
 
         <Link to="/nfc-manager" className="nav-btn accent">
-          📱 NFC Manager
+          <FontAwesomeIcon icon={faMobileAlt} /> NFC Manager
         </Link>
 
         <button
           onClick={() => handleScanModeChange("qr")}
           className={`nav-btn ${scanMode === "qr" ? "primary" : "info"}`}
         >
-          {scanMode === "qr" ? "📷 QR Active" : "📷 QR Scanner"}
+          {scanMode === "qr" ? (
+            <>
+              <FontAwesomeIcon icon={faQrcode} /> QR Active
+            </>
+          ) : (
+            <>
+              <FontAwesomeIcon icon={faQrcode} /> QR Scanner
+            </>
+          )}
         </button>
 
         <button
           onClick={() => handleScanModeChange("nfc")}
           className={`nav-btn ${scanMode === "nfc" ? "primary" : "accent"}`}
         >
-          {scanMode === "nfc" ? "📱 NFC Active" : "📱 NFC Reader"}
+          {scanMode === "nfc" ? (
+            <>
+              <FontAwesomeIcon icon={faMobileAlt} /> NFC Active
+            </>
+          ) : (
+            <>
+              <FontAwesomeIcon icon={faMobileAlt} /> NFC Reader
+            </>
+          )}
         </button>
 
-        <button
-          onClick={toggleManualEntry}
-          className={`nav-btn ${showManualEntry ? "accent" : "info"}`}
-        >
-          {showManualEntry ? "📷 Show Scanner" : "📝 Manual Entry"}
+        <button onClick={toggleManualEntry} className={`nav-btn ${showManualEntry ? "accent" : "info"}`}>
+          {showManualEntry ? (
+            <>
+              <FontAwesomeIcon icon={faQrcode} /> Show Scanner
+            </>
+          ) : (
+            <>
+              <FontAwesomeIcon icon={faFilePen} /> Manual Entry
+            </>
+          )}
         </button>
 
         {items.length > 0 && (
           <button onClick={handleClearCart} className="nav-btn danger">
-            🗑️ Clear Cart
+            <FontAwesomeIcon icon={faTrashCan} /> Clear Cart
           </button>
         )}
       </motion.div>
@@ -144,11 +183,10 @@ const Home = () => {
                 fontWeight: "600",
               }}
             >
-              ✅ Product Added Successfully!
+              <FontAwesomeIcon icon={faCircleCheck} /> Product Added Successfully!
             </h3>
             <p style={{ margin: "0 0 0.5rem 0" }}>
-              <strong>{lastAddedProduct.name}</strong> has been added to your
-              cart.
+              <strong>{lastAddedProduct.name}</strong> has been added to your cart.
             </p>
             <p style={{ margin: "0", fontSize: "0.875rem", opacity: "0.8" }}>
               Use the cart to modify quantities or scan more products.
@@ -191,15 +229,9 @@ const Home = () => {
         {showManualEntry ? (
           <ManualProductEntry onProductAdded={handleProductAdded} />
         ) : scanMode === "qr" ? (
-          <QRScannerComponent
-            isActive={isScannerActive}
-            onProductAdded={handleProductAdded}
-          />
+          <QRScannerComponent isActive={isScannerActive} onProductAdded={handleProductAdded} />
         ) : (
-          <NFCReaderComponent
-            isActive={isScannerActive}
-            onProductAdded={handleProductAdded}
-          />
+          <NFCReaderComponent isActive={isScannerActive} onProductAdded={handleProductAdded} />
         )}
       </motion.div>
 
@@ -217,7 +249,7 @@ const Home = () => {
             color: "var(--text-primary)",
           }}
         >
-          📖 How to Use
+          <FontAwesomeIcon icon={faBookOpen} /> How to Use
         </h3>
 
         <div
@@ -237,12 +269,14 @@ const Home = () => {
                 gap: "0.5rem",
               }}
             >
-              {showManualEntry ? "📝" : scanMode === "qr" ? "📷" : "📱"}
-              {showManualEntry
-                ? "Manual Entry"
-                : scanMode === "qr"
-                ? "QR Scanner"
-                : "NFC Reader"}
+              {showManualEntry ? (
+                <FontAwesomeIcon icon={faFilePen} />
+              ) : scanMode === "qr" ? (
+                <FontAwesomeIcon icon={faQrcode} />
+              ) : (
+                <FontAwesomeIcon icon={faMobileAlt} />
+              )}
+              {showManualEntry ? "Manual Entry" : scanMode === "qr" ? "QR Scanner" : "NFC Reader"}
             </h4>
             <ol
               style={{
@@ -280,10 +314,8 @@ const Home = () => {
           </div>
 
           <div>
-            <h4
-              style={{ color: "var(--secondary-color)", marginBottom: "1rem" }}
-            >
-              🏷️ Sample Product IDs
+            <h4 style={{ color: "var(--secondary-color)", marginBottom: "1rem" }}>
+              <FontAwesomeIcon icon={faWandMagicSparkles} /> Sample Product IDs
             </h4>
             <div
               style={{
@@ -293,12 +325,24 @@ const Home = () => {
                 fontSize: "0.875rem",
               }}
             >
-              <div className="badge primary">🍽️ Food: FOOD001-015</div>
-              <div className="badge info">📱 Electronics: ELEC001-020</div>
-              <div className="badge secondary">👕 Clothes: CLTH001-020</div>
-              <div className="badge warning">📚 Books: BOOK001-015</div>
-              <div className="badge danger">🏠 Home: HOME001-015</div>
-              <div className="badge primary">⚽ Sports: SPRT001-015</div>
+              <div className="badge primary">
+                <FontAwesomeIcon icon={faUtensils} /> Food: FOOD001-015
+              </div>
+              <div className="badge info">
+                <FontAwesomeIcon icon={faLaptop} /> Electronics: ELEC001-020
+              </div>
+              <div className="badge secondary">
+                <FontAwesomeIcon icon={faShirt} /> Clothes: CLTH001-020
+              </div>
+              <div className="badge warning">
+                <FontAwesomeIcon icon={faBook} /> Books: BOOK001-015
+              </div>
+              <div className="badge danger">
+                <FontAwesomeIcon icon={faHouse} /> Home: HOME001-015
+              </div>
+              <div className="badge primary">
+                <FontAwesomeIcon icon={faFutbol} /> Sports: SPRT001-015
+              </div>
             </div>
           </div>
         </div>
@@ -312,8 +356,7 @@ const Home = () => {
               style={{
                 marginTop: "2rem",
                 padding: "1.5rem",
-                background:
-                  "linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%)",
+                background: "linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%)",
                 borderRadius: "var(--radius-xl)",
                 border: "1px solid var(--border-light)",
               }}
@@ -327,11 +370,9 @@ const Home = () => {
                   gap: "0.5rem",
                 }}
               >
-                🛒 Current Cart Summary
+                <FontAwesomeIcon icon={faShoppingCart} /> Current Cart Summary
               </h4>
-              <div
-                style={{ fontSize: "0.875rem", color: "var(--text-secondary)" }}
-              >
+              <div style={{ fontSize: "0.875rem", color: "var(--text-secondary)" }}>
                 {items.map((item, index) => (
                   <motion.div
                     key={item.id}
@@ -374,13 +415,7 @@ const Home = () => {
                     border: "2px solid var(--primary-color)",
                   }}
                 >
-                  Total: ₹
-                  {items
-                    .reduce(
-                      (total, item) => total + item.price * item.quantity,
-                      0
-                    )
-                    .toFixed(2)}
+                  Total: ₹{items.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2)}
                 </div>
               </div>
             </motion.div>
@@ -391,8 +426,7 @@ const Home = () => {
           style={{
             marginTop: "2rem",
             padding: "1.5rem",
-            background:
-              "linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%)",
+            background: "linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%)",
             border: "1px solid rgba(99, 102, 241, 0.2)",
             borderRadius: "var(--radius-xl)",
             fontSize: "0.875rem",
@@ -426,7 +460,7 @@ const Home = () => {
         </div>
       </motion.div>
     </div>
-  );
-};
+  )
+}
 
-export default Home;
+export default Home

@@ -3,6 +3,18 @@
 import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import { getAllOrders, getOrderById, cancelOrderAndRestoreStock } from "../utils/productData.js"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import {
+  faArrowsRotate,
+  faCircleXmark,
+  faArrowLeft,
+  faCartShopping,
+  faCircleCheck,
+  faHourglassHalf,
+  faBox,
+  faMoneyBillWave,
+  faFileInvoice,
+} from "@fortawesome/free-solid-svg-icons"
 
 const Orders = () => {
   const [orders, setOrders] = useState([])
@@ -129,13 +141,13 @@ const Orders = () => {
   const getStatusIcon = (status) => {
     switch (status) {
       case "completed":
-        return "✅"
+        return <FontAwesomeIcon icon={faCircleCheck} />
       case "pending":
-        return "⏳"
+        return <FontAwesomeIcon icon={faHourglassHalf} />
       case "cancelled":
-        return "❌"
+        return <FontAwesomeIcon icon={faCircleXmark} />
       default:
-        return "📦"
+        return <FontAwesomeIcon icon={faBox} />
     }
   }
 
@@ -157,7 +169,9 @@ const Orders = () => {
           <p>Loading your orders...</p>
         </div>
         <div style={{ textAlign: "center", padding: "3rem" }}>
-          <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>🔄</div>
+          <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>
+            <FontAwesomeIcon icon={faArrowsRotate} spin />
+          </div>
           <p>Loading orders...</p>
         </div>
       </div>
@@ -172,7 +186,9 @@ const Orders = () => {
           <p>Error loading orders</p>
         </div>
         <div style={{ textAlign: "center", padding: "3rem" }}>
-          <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>❌</div>
+          <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>
+            <FontAwesomeIcon icon={faCircleXmark} />
+          </div>
           <p style={{ color: "#dc3545", marginBottom: "1rem" }}>{error}</p>
           <button
             onClick={fetchOrders}
@@ -201,10 +217,10 @@ const Orders = () => {
 
       <div className="nav-buttons">
         <Link to="/" className="nav-btn secondary">
-          ← Back to Home
+          <FontAwesomeIcon icon={faArrowLeft} /> Back to Home
         </Link>
         <Link to="/scanner" className="nav-btn">
-          🛒 Continue Shopping
+          <FontAwesomeIcon icon={faCartShopping} /> Continue Shopping
         </Link>
       </div>
 
@@ -327,7 +343,9 @@ const Orders = () => {
             textAlign: "center",
           }}
         >
-          <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>✅</div>
+          <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>
+            <FontAwesomeIcon icon={faCircleCheck} />
+          </div>
           <div style={{ fontSize: "1.5rem", fontWeight: "bold" }}>
             {orders.filter((o) => o.status === "completed").length}
           </div>
@@ -343,7 +361,9 @@ const Orders = () => {
             textAlign: "center",
           }}
         >
-          <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>⏳</div>
+          <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>
+            <FontAwesomeIcon icon={faHourglassHalf} />
+          </div>
           <div style={{ fontSize: "1.5rem", fontWeight: "bold" }}>
             {orders.filter((o) => o.status === "pending").length}
           </div>
@@ -359,7 +379,9 @@ const Orders = () => {
             textAlign: "center",
           }}
         >
-          <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>❌</div>
+          <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>
+            <FontAwesomeIcon icon={faCircleXmark} />
+          </div>
           <div style={{ fontSize: "1.5rem", fontWeight: "bold" }}>
             {orders.filter((o) => o.status === "cancelled").length}
           </div>
@@ -375,7 +397,9 @@ const Orders = () => {
             textAlign: "center",
           }}
         >
-          <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>💰</div>
+          <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>
+            <FontAwesomeIcon icon={faMoneyBillWave} />
+          </div>
           <div style={{ fontSize: "1.5rem", fontWeight: "bold" }}>
             ₹{orders.reduce((sum, order) => sum + (order.total || 0), 0).toFixed(2)}
           </div>
@@ -394,7 +418,9 @@ const Orders = () => {
             boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
           }}
         >
-          <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>📦</div>
+          <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>
+            <FontAwesomeIcon icon={faBox} />
+          </div>
           <h3>No Orders Found</h3>
           <p style={{ color: "#666", marginBottom: "1.5rem" }}>
             {searchTerm || statusFilter !== "all"
@@ -551,7 +577,7 @@ const Orders = () => {
                     fontSize: "14px",
                   }}
                 >
-                  📄 Download Invoice
+                  <FontAwesomeIcon icon={faFileInvoice} /> Download Invoice
                 </button>
               </div>
             </div>

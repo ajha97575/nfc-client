@@ -1,20 +1,36 @@
-"use client";
+"use client"
 
-import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../utils/AuthContext.jsx";
-import { makeAuthenticatedRequest } from "../utils/authUtils.js";
-import toast from "react-hot-toast";
+import { useState, useEffect } from "react"
+import { Link, useNavigate } from "react-router-dom"
+import { useAuth } from "../utils/AuthContext.jsx"
+import { makeAuthenticatedRequest } from "../utils/authUtils.js"
+import toast from "react-hot-toast"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import {
+  faGears,
+  faHouse,
+  faRightFromBracket,
+  faChartSimple,
+  faClipboardList,
+  faBox,
+  faChartLine,
+  faGear,
+  faTriangleExclamation,
+  faBan,
+  faMoneyBillWave,
+  faPlus,
+  faArrowsRotate,
+} from "@fortawesome/free-solid-svg-icons"
 
 const AdminDashboard = () => {
-  const [products, setProducts] = useState({});
-  const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("overview");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("all");
-  const [stockFilter, setStockFilter] = useState("all");
-  const [editingProduct, setEditingProduct] = useState(null);
+  const [products, setProducts] = useState({})
+  const [orders, setOrders] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [activeTab, setActiveTab] = useState("overview")
+  const [searchTerm, setSearchTerm] = useState("")
+  const [categoryFilter, setCategoryFilter] = useState("all")
+  const [stockFilter, setStockFilter] = useState("all")
+  const [editingProduct, setEditingProduct] = useState(null)
   const [newProduct, setNewProduct] = useState({
     id: "",
     name: "",
@@ -23,14 +39,14 @@ const AdminDashboard = () => {
     category: "",
     stock: "",
     image: "/placeholder.svg?height=100&width=100",
-  });
-  const [showAddProduct, setShowAddProduct] = useState(false);
-  const [bulkUpdateMode, setBulkUpdateMode] = useState(false);
-  const [selectedProducts, setSelectedProducts] = useState(new Set());
-  const [bulkStockValue, setBulkStockValue] = useState("");
+  })
+  const [showAddProduct, setShowAddProduct] = useState(false)
+  const [bulkUpdateMode, setBulkUpdateMode] = useState(false)
+  const [selectedProducts, setSelectedProducts] = useState(new Set())
+  const [bulkStockValue, setBulkStockValue] = useState("")
 
-  const { admin, logout, isAuthenticated } = useAuth();
-  const navigate = useNavigate();
+  const { admin, logout, isAuthenticated } = useAuth()
+  const navigate = useNavigate()
 
   const generateInvoice = (order) => {
     localStorage.setItem(
@@ -41,19 +57,19 @@ const AdminDashboard = () => {
         tax: order.total * 0.18,
         finalTotal: order.total + order.total * 0.18,
         status: order.status || "completed",
-      })
-    );
+      }),
+    )
     // Navigate to invoice page
-    navigate("/invoice");
-  };
+    navigate("/invoice")
+  }
 
   useEffect(() => {
     if (!isAuthenticated) {
-      navigate("/admin-login");
-      return;
+      navigate("/admin-login")
+      return
     }
-    fetchData();
-  }, [isAuthenticated, navigate]);
+    fetchData()
+  }, [isAuthenticated, navigate])
 
   useEffect(() => {
     const tabTitles = {
@@ -62,49 +78,47 @@ const AdminDashboard = () => {
       inventory: "Admin Dashboard - Inventory",
       analytics: "Admin Dashboard - Analytics",
       settings: "Admin Dashboard - Settings",
-    };
-    document.title = tabTitles[activeTab] || "Admin Dashboard";
-  }, [activeTab]);
+    }
+    document.title = tabTitles[activeTab] || "Admin Dashboard"
+  }, [activeTab])
 
   const fetchData = async () => {
     try {
-      setLoading(true);
+      setLoading(true)
       const [productsResponse, ordersResponse] = await Promise.all([
         makeAuthenticatedRequest("/products"),
         makeAuthenticatedRequest("/orders"),
-      ]);
+      ])
 
-      const productsData = await productsResponse.json();
-      const ordersData = await ordersResponse.json();
+      const productsData = await productsResponse.json()
+      const ordersData = await ordersResponse.json()
 
-      setProducts(productsData || {});
-      setOrders(ordersData || []);
+      setProducts(productsData || {})
+      setOrders(ordersData || [])
 
       // Low stock notification check (≤ 5 units)
-      const lowStockItems = Object.values(productsData || {}).filter(
-        (p) => p.stock <= 5
-      );
+      const lowStockItems = Object.values(productsData || {}).filter((p) => p.stock <= 5)
       if (lowStockItems.length > 0) {
         lowStockItems.forEach((item) => {
           toast.error(`⚠️ ${item.name} stock is low (${item.stock} left)`, {
             duration: 4000,
-          });
-        });
+          })
+        })
       }
     } catch (error) {
-      console.error("Error fetching data:", error);
-      toast.error("Failed to fetch data. Please try again.");
+      console.error("Error fetching data:", error)
+      toast.error("Failed to fetch data. Please try again.")
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleStockUpdate = async (productId, newStock) => {
     try {
       await makeAuthenticatedRequest(`/product/${productId}/stock`, {
         method: "PUT",
         body: JSON.stringify({ stock: Number.parseInt(newStock) }),
-      });
+      })
 
       setProducts((prev) => ({
         ...prev,
@@ -112,31 +126,31 @@ const AdminDashboard = () => {
           ...prev[productId],
           stock: Number.parseInt(newStock),
         },
-      }));
-      setEditingProduct(null);
-      toast.success("✅ Stock updated successfully");
+      }))
+      setEditingProduct(null)
+      toast.success("✅ Stock updated successfully")
     } catch (error) {
-      console.error("Error updating stock:", error);
-      toast.error("❌ Failed to update stock");
+      console.error("Error updating stock:", error)
+      toast.error("❌ Failed to update stock")
     }
-  };
+  }
 
   const handleAddProduct = async (e) => {
-    e.preventDefault();
+    e.preventDefault()
     try {
       const productData = {
         ...newProduct,
         price: Number.parseFloat(newProduct.price),
         stock: Number.parseInt(newProduct.stock),
-      };
+      }
 
       const response = await makeAuthenticatedRequest("/products", {
         method: "POST",
         body: JSON.stringify(productData),
-      });
+      })
 
       if (response.ok) {
-        await fetchData(); // Refresh data
+        await fetchData() // Refresh data
         setNewProduct({
           id: "",
           name: "",
@@ -145,20 +159,20 @@ const AdminDashboard = () => {
           category: "",
           stock: "",
           image: "/placeholder.svg?height=100&width=100",
-        });
-        setShowAddProduct(false);
-        toast.success("✅ Product added successfully");
+        })
+        setShowAddProduct(false)
+        toast.success("✅ Product added successfully")
       }
     } catch (error) {
-      console.error("Error adding product:", error);
-      toast.error("❌ Failed to add product");
+      console.error("Error adding product:", error)
+      toast.error("❌ Failed to add product")
     }
-  };
+  }
 
   const handleBulkStockUpdate = async () => {
     if (!bulkStockValue || selectedProducts.size === 0) {
-      toast.error("⚠️ Please select products and enter a stock value");
-      return;
+      toast.error("⚠️ Please select products and enter a stock value")
+      return
     }
 
     try {
@@ -166,50 +180,45 @@ const AdminDashboard = () => {
         makeAuthenticatedRequest(`/product/${productId}/stock`, {
           method: "PUT",
           body: JSON.stringify({ stock: Number.parseInt(bulkStockValue) }),
-        })
-      );
+        }),
+      )
 
-      await Promise.all(updatePromises);
-      await fetchData(); // Refresh data
-      setSelectedProducts(new Set());
-      setBulkStockValue("");
-      setBulkUpdateMode(false);
-      toast.success("✅ Bulk stock updated successfully");
+      await Promise.all(updatePromises)
+      await fetchData() // Refresh data
+      setSelectedProducts(new Set())
+      setBulkStockValue("")
+      setBulkUpdateMode(false)
+      toast.success("✅ Bulk stock updated successfully")
     } catch (error) {
-      console.error("Error bulk updating stock:", error);
-      toast.error("❌ Failed to update stock for some products");
+      console.error("Error bulk updating stock:", error)
+      toast.error("❌ Failed to update stock for some products")
     }
-  };
+  }
 
   const handleLogout = async () => {
     try {
-      await logout();
-      navigate("/admin-login");
-      toast.success("Logged out successfully");
+      await logout()
+      navigate("/admin-login")
+      toast.success("Logged out successfully")
     } catch (error) {
-      console.error("Logout error:", error);
-      toast.error("Error during logout");
+      console.error("Logout error:", error)
+      toast.error("Error during logout")
     }
-  };
+  }
 
   const getCategories = () => {
-    const categories = new Set(Object.values(products).map((p) => p.category));
-    return Array.from(categories);
-  };
+    const categories = new Set(Object.values(products).map((p) => p.category))
+    return Array.from(categories)
+  }
 
   const getAnalytics = () => {
-    const productList = Object.values(products);
-    const totalProducts = productList.length;
-    const totalStock = productList.reduce((sum, p) => sum + p.stock, 0);
-    const lowStockProducts = productList.filter((p) => p.stock <= 10).length;
-    const outOfStockProducts = productList.filter((p) => p.stock === 0).length;
-    const totalRevenue = orders.reduce(
-      (sum, order) => sum + (order.total || 0),
-      0
-    );
-    const completedOrders = orders.filter(
-      (o) => o.status === "completed"
-    ).length;
+    const productList = Object.values(products)
+    const totalProducts = productList.length
+    const totalStock = productList.reduce((sum, p) => sum + p.stock, 0)
+    const lowStockProducts = productList.filter((p) => p.stock <= 10).length
+    const outOfStockProducts = productList.filter((p) => p.stock === 0).length
+    const totalRevenue = orders.reduce((sum, order) => sum + (order.total || 0), 0)
+    const completedOrders = orders.filter((o) => o.status === "completed").length
 
     return {
       totalProducts,
@@ -219,27 +228,26 @@ const AdminDashboard = () => {
       totalRevenue,
       completedOrders,
       totalOrders: orders.length,
-    };
-  };
+    }
+  }
 
-  const analytics = getAnalytics();
+  const analytics = getAnalytics()
 
   const filteredProducts = Object.values(products).filter((product) => {
     const matchesSearch =
       product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.id.toLowerCase().includes(searchTerm.toLowerCase());
+      product.id.toLowerCase().includes(searchTerm.toLowerCase())
 
-    const matchesCategory =
-      categoryFilter === "all" || product.category === categoryFilter;
+    const matchesCategory = categoryFilter === "all" || product.category === categoryFilter
 
     const matchesStock =
       stockFilter === "all" ||
       (stockFilter === "available" && product.stock > 0) ||
       (stockFilter === "low" && product.stock > 0 && product.stock <= 10) ||
-      (stockFilter === "out" && product.stock === 0);
+      (stockFilter === "out" && product.stock === 0)
 
-    return matchesSearch && matchesCategory && matchesStock;
-  });
+    return matchesSearch && matchesCategory && matchesStock
+  })
 
   if (loading) {
     return (
@@ -275,7 +283,7 @@ const AdminDashboard = () => {
           <p style={{ color: "#666", margin: 0 }}>Loading dashboard...</p>
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -303,11 +311,10 @@ const AdminDashboard = () => {
       >
         <div>
           <h1 style={{ margin: "0 0 0.5rem 0", color: "#333" }}>
-            🎛️ Admin Dashboard
+            <FontAwesomeIcon icon={faGears} /> Admin Dashboard
           </h1>
           <p style={{ margin: 0, color: "#666" }}>
-            Welcome back, <strong>{admin?.username || "Admin"}</strong>! Manage
-            your inventory and orders.
+            Welcome back, <strong>{admin?.username || "Admin"}</strong>! Manage your inventory and orders.
           </p>
         </div>
         <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
@@ -322,7 +329,7 @@ const AdminDashboard = () => {
               fontWeight: "600",
             }}
           >
-            🏠 Back to Home
+            <FontAwesomeIcon icon={faHouse} /> Back to Home
           </Link>
           <button
             onClick={handleLogout}
@@ -336,7 +343,7 @@ const AdminDashboard = () => {
               fontWeight: "600",
             }}
           >
-            🚪 Logout
+            <FontAwesomeIcon icon={faRightFromBracket} /> Logout
           </button>
         </div>
       </div>
@@ -352,11 +359,11 @@ const AdminDashboard = () => {
         }}
       >
         {[
-          { id: "overview", label: "📊 Overview", icon: "📊" },
-          { id: "orders", label: "📋 Orders", icon: "📋" },
-          { id: "inventory", label: "📦 Inventory", icon: "📦" },
-          { id: "analytics", label: "📈 Analytics", icon: "📈" },
-          { id: "settings", label: "⚙️ Settings", icon: "⚙️" },
+          { id: "overview", label: "Overview", icon: faChartSimple },
+          { id: "orders", label: "Orders", icon: faClipboardList },
+          { id: "inventory", label: "Inventory", icon: faBox },
+          { id: "analytics", label: "Analytics", icon: faChartLine },
+          { id: "settings", label: "Settings", icon: faGear },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -366,15 +373,13 @@ const AdminDashboard = () => {
               background: activeTab === tab.id ? "#007bff" : "transparent",
               color: activeTab === tab.id ? "white" : "#666",
               border: "none",
-              borderBottom:
-                activeTab === tab.id
-                  ? "3px solid #007bff"
-                  : "3px solid transparent",
+              borderBottom: activeTab === tab.id ? "3px solid #007bff" : "3px solid transparent",
               cursor: "pointer",
               fontWeight: activeTab === tab.id ? "600" : "400",
               whiteSpace: "nowrap",
             }}
           >
+            <FontAwesomeIcon icon={tab.icon} style={{ marginRight: "0.5rem" }} />
             {tab.label}
           </button>
         ))}
@@ -402,7 +407,7 @@ const AdminDashboard = () => {
               }}
             >
               <div style={{ fontSize: "2.5rem", marginBottom: "0.5rem" }}>
-                📦
+                <FontAwesomeIcon icon={faBox} />
               </div>
               <div
                 style={{
@@ -426,7 +431,7 @@ const AdminDashboard = () => {
               }}
             >
               <div style={{ fontSize: "2.5rem", marginBottom: "0.5rem" }}>
-                📊
+                <FontAwesomeIcon icon={faChartSimple} />
               </div>
               <div
                 style={{
@@ -450,7 +455,7 @@ const AdminDashboard = () => {
               }}
             >
               <div style={{ fontSize: "2.5rem", marginBottom: "0.5rem" }}>
-                ⚠️
+                <FontAwesomeIcon icon={faTriangleExclamation} />
               </div>
               <div
                 style={{
@@ -474,7 +479,7 @@ const AdminDashboard = () => {
               }}
             >
               <div style={{ fontSize: "2.5rem", marginBottom: "0.5rem" }}>
-                🚫
+                <FontAwesomeIcon icon={faBan} />
               </div>
               <div
                 style={{
@@ -498,7 +503,7 @@ const AdminDashboard = () => {
               }}
             >
               <div style={{ fontSize: "2.5rem", marginBottom: "0.5rem" }}>
-                💰
+                <FontAwesomeIcon icon={faMoneyBillWave} />
               </div>
               <div
                 style={{
@@ -522,7 +527,7 @@ const AdminDashboard = () => {
               }}
             >
               <div style={{ fontSize: "2.5rem", marginBottom: "0.5rem" }}>
-                📋
+                <FontAwesomeIcon icon={faClipboardList} />
               </div>
               <div
                 style={{
@@ -567,7 +572,7 @@ const AdminDashboard = () => {
                   fontWeight: "600",
                 }}
               >
-                ➕ Add New Product
+                <FontAwesomeIcon icon={faPlus} /> Add New Product
               </button>
 
               <button
@@ -582,7 +587,7 @@ const AdminDashboard = () => {
                   fontWeight: "600",
                 }}
               >
-                📦 Bulk Stock Update
+                <FontAwesomeIcon icon={faBox} /> Bulk Stock Update
               </button>
 
               <button
@@ -597,7 +602,7 @@ const AdminDashboard = () => {
                   fontWeight: "600",
                 }}
               >
-                📋 Manage Inventory
+                <FontAwesomeIcon icon={faClipboardList} /> Manage Inventory
               </button>
 
               <button
@@ -612,7 +617,7 @@ const AdminDashboard = () => {
                   fontWeight: "600",
                 }}
               >
-                🔄 Refresh Data
+                <FontAwesomeIcon icon={faArrowsRotate} /> Refresh Data
               </button>
             </div>
           </div>
@@ -814,23 +819,13 @@ const AdminDashboard = () => {
                     .filter((order) => {
                       const matchesSearch =
                         searchTerm === "" ||
-                        order.id
-                          .toLowerCase()
-                          .includes(searchTerm.toLowerCase()) ||
-                        (order.customerName &&
-                          order.customerName
-                            .toLowerCase()
-                            .includes(searchTerm.toLowerCase()));
-                      const matchesStatus =
-                        categoryFilter === "all" ||
-                        order.status === categoryFilter;
-                      return matchesSearch && matchesStatus;
+                        order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        (order.customerName && order.customerName.toLowerCase().includes(searchTerm.toLowerCase()))
+                      const matchesStatus = categoryFilter === "all" || order.status === categoryFilter
+                      return matchesSearch && matchesStatus
                     })
                     .map((order, index) => (
-                      <tr
-                        key={order.id}
-                        style={{ borderBottom: "1px solid #e9ecef" }}
-                      >
+                      <tr key={order.id} style={{ borderBottom: "1px solid #e9ecef" }}>
                         <td
                           style={{
                             padding: "1rem",
@@ -842,21 +837,13 @@ const AdminDashboard = () => {
                         </td>
                         <td style={{ padding: "1rem" }}>
                           <div>
-                            <div style={{ fontWeight: "600" }}>
-                              {order.customerName || "Guest Customer"}
-                            </div>
-                            <div
-                              style={{ fontSize: "0.875rem", color: "#666" }}
-                            >
-                              {order.customerEmail || "N/A"}
-                            </div>
+                            <div style={{ fontWeight: "600" }}>{order.customerName || "Guest Customer"}</div>
+                            <div style={{ fontSize: "0.875rem", color: "#666" }}>{order.customerEmail || "N/A"}</div>
                           </div>
                         </td>
                         <td style={{ padding: "1rem" }}>
                           <div style={{ fontSize: "0.875rem" }}>
-                            {order.items
-                              ? `${order.items.length} item(s)`
-                              : "N/A"}
+                            {order.items ? `${order.items.length} item(s)` : "N/A"}
                           </div>
                         </td>
                         <td style={{ padding: "1rem", fontWeight: "600" }}>
@@ -873,14 +860,14 @@ const AdminDashboard = () => {
                                 order.status === "completed"
                                   ? "#d4edda"
                                   : order.status === "pending"
-                                  ? "#fff3cd"
-                                  : "#f8d7da",
+                                    ? "#fff3cd"
+                                    : "#f8d7da",
                               color:
                                 order.status === "completed"
                                   ? "#155724"
                                   : order.status === "pending"
-                                  ? "#856404"
-                                  : "#721c24",
+                                    ? "#856404"
+                                    : "#721c24",
                             }}
                           >
                             {order.status || "pending"}
@@ -893,9 +880,7 @@ const AdminDashboard = () => {
                             color: "#666",
                           }}
                         >
-                          {order.date
-                            ? new Date(order.date).toLocaleDateString()
-                            : "N/A"}
+                          {order.date ? new Date(order.date).toLocaleDateString() : "N/A"}
                         </td>
                         <td style={{ padding: "1rem" }}>
                           <div style={{ display: "flex", gap: "0.5rem" }}>
@@ -1037,9 +1022,7 @@ const AdminDashboard = () => {
                   border: "2px solid #007bff",
                 }}
               >
-                <h4 style={{ marginBottom: "1rem", color: "#007bff" }}>
-                  📦 Bulk Stock Update Mode
-                </h4>
+                <h4 style={{ marginBottom: "1rem", color: "#007bff" }}>📦 Bulk Stock Update Mode</h4>
                 <div
                   style={{
                     display: "flex",
@@ -1076,17 +1059,11 @@ const AdminDashboard = () => {
                     disabled={selectedProducts.size === 0 || !bulkStockValue}
                     style={{
                       padding: "0.75rem 1.5rem",
-                      background:
-                        selectedProducts.size === 0 || !bulkStockValue
-                          ? "#6c757d"
-                          : "#28a745",
+                      background: selectedProducts.size === 0 || !bulkStockValue ? "#6c757d" : "#28a745",
                       color: "white",
                       border: "none",
                       borderRadius: "8px",
-                      cursor:
-                        selectedProducts.size === 0 || !bulkStockValue
-                          ? "not-allowed"
-                          : "pointer",
+                      cursor: selectedProducts.size === 0 || !bulkStockValue ? "not-allowed" : "pointer",
                       fontWeight: "600",
                     }}
                   >
@@ -1094,9 +1071,9 @@ const AdminDashboard = () => {
                   </button>
                   <button
                     onClick={() => {
-                      setBulkUpdateMode(false);
-                      setSelectedProducts(new Set());
-                      setBulkStockValue("");
+                      setBulkUpdateMode(false)
+                      setSelectedProducts(new Set())
+                      setBulkStockValue("")
                     }}
                     style={{
                       padding: "0.75rem 1.5rem",
@@ -1140,13 +1117,13 @@ const AdminDashboard = () => {
                 }}
                 onClick={() => {
                   if (bulkUpdateMode) {
-                    const newSelected = new Set(selectedProducts);
+                    const newSelected = new Set(selectedProducts)
                     if (newSelected.has(product.id)) {
-                      newSelected.delete(product.id);
+                      newSelected.delete(product.id)
                     } else {
-                      newSelected.add(product.id);
+                      newSelected.add(product.id)
                     }
-                    setSelectedProducts(newSelected);
+                    setSelectedProducts(newSelected)
                   }
                 }}
               >
@@ -1283,7 +1260,7 @@ const AdminDashboard = () => {
                         defaultValue={product.stock}
                         onKeyPress={(e) => {
                           if (e.key === "Enter") {
-                            handleStockUpdate(product.id, e.target.value);
+                            handleStockUpdate(product.id, e.target.value)
                           }
                         }}
                         style={{
@@ -1296,9 +1273,8 @@ const AdminDashboard = () => {
                       />
                       <button
                         onClick={(e) => {
-                          const input =
-                            e.target.parentElement.querySelector("input");
-                          handleStockUpdate(product.id, input.value);
+                          const input = e.target.parentElement.querySelector("input")
+                          handleStockUpdate(product.id, input.value)
                         }}
                         style={{
                           padding: "0.5rem",
@@ -1337,19 +1313,12 @@ const AdminDashboard = () => {
                         style={{
                           fontSize: "1.1rem",
                           fontWeight: "600",
-                          color:
-                            product.stock === 0
-                              ? "#dc3545"
-                              : product.stock <= 10
-                              ? "#ffc107"
-                              : "#28a745",
+                          color: product.stock === 0 ? "#dc3545" : product.stock <= 10 ? "#ffc107" : "#28a745",
                         }}
                       >
                         {product.stock} units
                         {product.stock === 0 && " (Out of Stock)"}
-                        {product.stock > 0 &&
-                          product.stock <= 10 &&
-                          " (Low Stock)"}
+                        {product.stock > 0 && product.stock <= 10 && " (Low Stock)"}
                       </span>
                       {!bulkUpdateMode && (
                         <button
@@ -1408,12 +1377,8 @@ const AdminDashboard = () => {
               }}
             >
               <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>📦</div>
-              <h3 style={{ color: "#666", marginBottom: "0.5rem" }}>
-                No products found
-              </h3>
-              <p style={{ color: "#999", margin: 0 }}>
-                Try adjusting your search or filter criteria
-              </p>
+              <h3 style={{ color: "#666", marginBottom: "0.5rem" }}>No products found</h3>
+              <p style={{ color: "#999", margin: 0 }}>Try adjusting your search or filter criteria</p>
             </div>
           )}
         </div>
@@ -1431,12 +1396,8 @@ const AdminDashboard = () => {
               marginBottom: "2rem",
             }}
           >
-            <h2 style={{ margin: "0 0 1rem 0", color: "#333" }}>
-              📈 Analytics & Insights
-            </h2>
-            <p style={{ margin: 0, color: "#666" }}>
-              Comprehensive overview of your business performance
-            </p>
+            <h2 style={{ margin: "0 0 1rem 0", color: "#333" }}>📈 Analytics & Insights</h2>
+            <p style={{ margin: 0, color: "#666" }}>Comprehensive overview of your business performance</p>
           </div>
 
           {/* Key Metrics Grid */}
@@ -1459,7 +1420,7 @@ const AdminDashboard = () => {
               }}
             >
               <div style={{ fontSize: "2.5rem", marginBottom: "0.5rem" }}>
-                💰
+                <FontAwesomeIcon icon={faMoneyBillWave} />
               </div>
               <div
                 style={{
@@ -1470,9 +1431,7 @@ const AdminDashboard = () => {
               >
                 ₹{analytics.totalRevenue.toFixed(2)}
               </div>
-              <div style={{ fontSize: "1.1rem", opacity: 0.9 }}>
-                Total Revenue
-              </div>
+              <div style={{ fontSize: "1.1rem", opacity: 0.9 }}>Total Revenue</div>
               <div
                 style={{
                   fontSize: "0.9rem",
@@ -1495,7 +1454,7 @@ const AdminDashboard = () => {
               }}
             >
               <div style={{ fontSize: "2.5rem", marginBottom: "0.5rem" }}>
-                📊
+                <FontAwesomeIcon icon={faChartSimple} />
               </div>
               <div
                 style={{
@@ -1506,9 +1465,7 @@ const AdminDashboard = () => {
               >
                 {analytics.completedOrders}
               </div>
-              <div style={{ fontSize: "1.1rem", opacity: 0.9 }}>
-                Total Sales
-              </div>
+              <div style={{ fontSize: "1.1rem", opacity: 0.9 }}>Total Sales</div>
               <div
                 style={{
                   fontSize: "0.9rem",
@@ -1531,7 +1488,7 @@ const AdminDashboard = () => {
               }}
             >
               <div style={{ fontSize: "2.5rem", marginBottom: "0.5rem" }}>
-                📦
+                <FontAwesomeIcon icon={faBox} />
               </div>
               <div
                 style={{
@@ -1542,9 +1499,7 @@ const AdminDashboard = () => {
               >
                 {analytics.totalStock}
               </div>
-              <div style={{ fontSize: "1.1rem", opacity: 0.9 }}>
-                Total Inventory
-              </div>
+              <div style={{ fontSize: "1.1rem", opacity: 0.9 }}>Total Inventory</div>
               <div
                 style={{
                   fontSize: "0.9rem",
@@ -1581,9 +1536,7 @@ const AdminDashboard = () => {
               >
                 {analytics.lowStockProducts}
               </div>
-              <div style={{ fontSize: "1.1rem", opacity: 0.9 }}>
-                Low Stock Items
-              </div>
+              <div style={{ fontSize: "1.1rem", opacity: 0.9 }}>Low Stock Items</div>
               <div
                 style={{
                   fontSize: "0.9rem",
@@ -1614,9 +1567,7 @@ const AdminDashboard = () => {
                 boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
               }}
             >
-              <h3 style={{ margin: "0 0 1.5rem 0", color: "#333" }}>
-                📈 Sales Trend
-              </h3>
+              <h3 style={{ margin: "0 0 1.5rem 0", color: "#333" }}>📈 Sales Trend</h3>
               <div
                 style={{
                   height: "300px",
@@ -1629,13 +1580,9 @@ const AdminDashboard = () => {
                 }}
               >
                 <div style={{ textAlign: "center", color: "#666" }}>
-                  <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>
-                    📊
-                  </div>
+                  <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>📊</div>
                   <p style={{ margin: 0 }}>Sales chart visualization</p>
-                  <p style={{ margin: "0.5rem 0 0 0", fontSize: "0.9rem" }}>
-                    Integration with Chart.js recommended
-                  </p>
+                  <p style={{ margin: "0.5rem 0 0 0", fontSize: "0.9rem" }}>Integration with Chart.js recommended</p>
                 </div>
               </div>
             </div>
@@ -1649,9 +1596,7 @@ const AdminDashboard = () => {
                 boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
               }}
             >
-              <h3 style={{ margin: "0 0 1.5rem 0", color: "#333" }}>
-                🏆 Top Products
-              </h3>
+              <h3 style={{ margin: "0 0 1.5rem 0", color: "#333" }}>🏆 Top Products</h3>
               <div
                 style={{
                   display: "flex",
@@ -1680,13 +1625,7 @@ const AdminDashboard = () => {
                           height: "30px",
                           borderRadius: "50%",
                           background:
-                            index === 0
-                              ? "#ffd700"
-                              : index === 1
-                              ? "#c0c0c0"
-                              : index === 2
-                              ? "#cd7f32"
-                              : "#e9ecef",
+                            index === 0 ? "#ffd700" : index === 1 ? "#c0c0c0" : index === 2 ? "#cd7f32" : "#e9ecef",
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
@@ -1697,9 +1636,7 @@ const AdminDashboard = () => {
                         {index + 1}
                       </div>
                       <div style={{ flex: 1 }}>
-                        <div style={{ fontWeight: "600", fontSize: "0.9rem" }}>
-                          {product.name}
-                        </div>
+                        <div style={{ fontWeight: "600", fontSize: "0.9rem" }}>{product.name}</div>
                         <div style={{ fontSize: "0.8rem", color: "#666" }}>
                           {product.stock} units • ₹{product.price}
                         </div>
@@ -1719,9 +1656,7 @@ const AdminDashboard = () => {
               boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
             }}
           >
-            <h3 style={{ margin: "0 0 1.5rem 0", color: "#333" }}>
-              📊 Stock Analysis
-            </h3>
+            <h3 style={{ margin: "0 0 1.5rem 0", color: "#333" }}>📊 Stock Analysis</h3>
             <div
               style={{
                 display: "grid",
@@ -1830,12 +1765,8 @@ const AdminDashboard = () => {
               marginBottom: "2rem",
             }}
           >
-            <h2 style={{ margin: "0 0 1rem 0", color: "#333" }}>
-              ⚙️ Settings & Configuration
-            </h2>
-            <p style={{ margin: 0, color: "#666" }}>
-              Manage your admin profile and system preferences
-            </p>
+            <h2 style={{ margin: "0 0 1rem 0", color: "#333" }}>⚙️ Settings & Configuration</h2>
+            <p style={{ margin: 0, color: "#666" }}>Manage your admin profile and system preferences</p>
           </div>
 
           <div
@@ -1854,9 +1785,7 @@ const AdminDashboard = () => {
                 boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
               }}
             >
-              <h3 style={{ margin: "0 0 1.5rem 0", color: "#333" }}>
-                👤 Admin Profile
-              </h3>
+              <h3 style={{ margin: "0 0 1.5rem 0", color: "#333" }}>👤 Admin Profile</h3>
               <div
                 style={{
                   display: "flex",
@@ -1953,9 +1882,7 @@ const AdminDashboard = () => {
                 boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
               }}
             >
-              <h3 style={{ margin: "0 0 1.5rem 0", color: "#333" }}>
-                🔧 System Preferences
-              </h3>
+              <h3 style={{ margin: "0 0 1.5rem 0", color: "#333" }}>🔧 System Preferences</h3>
               <div
                 style={{
                   display: "flex",
@@ -1983,9 +1910,7 @@ const AdminDashboard = () => {
                       borderRadius: "8px",
                     }}
                   />
-                  <small style={{ color: "#666" }}>
-                    Alert when stock falls below this number
-                  </small>
+                  <small style={{ color: "#666" }}>Alert when stock falls below this number</small>
                 </div>
                 <div>
                   <label
@@ -2020,9 +1945,7 @@ const AdminDashboard = () => {
                     }}
                   >
                     <input type="checkbox" defaultChecked />
-                    <span style={{ fontWeight: "600" }}>
-                      Email Notifications
-                    </span>
+                    <span style={{ fontWeight: "600" }}>Email Notifications</span>
                   </label>
                   <small style={{ color: "#666", marginLeft: "1.5rem" }}>
                     Receive alerts for low stock and new orders
@@ -2040,9 +1963,7 @@ const AdminDashboard = () => {
                     <input type="checkbox" defaultChecked />
                     <span style={{ fontWeight: "600" }}>Auto-backup Data</span>
                   </label>
-                  <small style={{ color: "#666", marginLeft: "1.5rem" }}>
-                    Automatically backup data daily
-                  </small>
+                  <small style={{ color: "#666", marginLeft: "1.5rem" }}>Automatically backup data daily</small>
                 </div>
               </div>
             </div>
@@ -2058,9 +1979,7 @@ const AdminDashboard = () => {
               marginTop: "2rem",
             }}
           >
-            <h3 style={{ margin: "0 0 1.5rem 0", color: "#333" }}>
-              📦 Product Management
-            </h3>
+            <h3 style={{ margin: "0 0 1.5rem 0", color: "#333" }}>📦 Product Management</h3>
             <div
               style={{
                 display: "grid",
@@ -2099,20 +2018,14 @@ const AdminDashboard = () => {
               <button
                 onClick={() => {
                   const csvData = Object.values(products)
-                    .map(
-                      (p) =>
-                        `${p.id},${p.name},${p.price},${p.stock},${p.category}`
-                    )
-                    .join("\n");
-                  const blob = new Blob(
-                    [`ID,Name,Price,Stock,Category\n${csvData}`],
-                    { type: "text/csv" }
-                  );
-                  const url = URL.createObjectURL(blob);
-                  const a = document.createElement("a");
-                  a.href = url;
-                  a.download = "products.csv";
-                  a.click();
+                    .map((p) => `${p.id},${p.name},${p.price},${p.stock},${p.category}`)
+                    .join("\n")
+                  const blob = new Blob([`ID,Name,Price,Stock,Category\n${csvData}`], { type: "text/csv" })
+                  const url = URL.createObjectURL(blob)
+                  const a = document.createElement("a")
+                  a.href = url
+                  a.download = "products.csv"
+                  a.click()
                 }}
                 style={{
                   padding: "1rem",
@@ -2190,9 +2103,7 @@ const AdminDashboard = () => {
                     type="text"
                     required
                     value={newProduct.id}
-                    onChange={(e) =>
-                      setNewProduct((prev) => ({ ...prev, id: e.target.value }))
-                    }
+                    onChange={(e) => setNewProduct((prev) => ({ ...prev, id: e.target.value }))}
                     style={{
                       width: "100%",
                       padding: "0.75rem",
@@ -2407,7 +2318,7 @@ const AdminDashboard = () => {
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default AdminDashboard;
+export default AdminDashboard

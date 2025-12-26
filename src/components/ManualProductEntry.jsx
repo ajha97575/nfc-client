@@ -7,6 +7,26 @@ import { getAllProducts, getProductById, validateStockForCart } from "../utils/p
 import { playSuccessSound } from "../utils/soundUtils.js"
 import { SmartImage } from "../utils/imageUtils.jsx"
 import toast from "../utils/toastUtils.js"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import {
+  faFilePen,
+  faChevronUp,
+  faChevronDown,
+  faCartPlus,
+  faBasketShopping,
+  faArrowsRotate,
+  faUtensils,
+  faLaptop,
+  faShirt,
+  faCircleCheck,
+  faCircleXmark,
+  faCheck,
+  faTimes,
+  faPlus,
+  faBoxOpen,
+  faMagnifyingGlass,
+  faBoltLightning,
+} from "@fortawesome/free-solid-svg-icons"
 
 const ManualProductEntry = ({ onProductAdded }) => {
   const [productId, setProductId] = useState("")
@@ -175,7 +195,7 @@ const ManualProductEntry = ({ onProductAdded }) => {
             gap: "0.5rem",
           }}
         >
-          📝 Manual Product Entry
+          <FontAwesomeIcon icon={faFilePen} /> Manual Product Entry
         </h3>
         <button
           onClick={() => {
@@ -185,7 +205,17 @@ const ManualProductEntry = ({ onProductAdded }) => {
           className="nav-btn info"
           style={{ fontSize: "0.875rem", padding: "0.5rem 1rem" }}
         >
-          {showProductList ? "🔼 Hide Products" : "🔽 Show Products"}
+          {showProductList ? (
+            <>
+              <FontAwesomeIcon icon={faChevronUp} style={{ marginRight: "0.5rem" }} />
+              Hide Products
+            </>
+          ) : (
+            <>
+              <FontAwesomeIcon icon={faChevronDown} style={{ marginRight: "0.5rem" }} />
+              Show Products
+            </>
+          )}
         </button>
       </div>
 
@@ -218,7 +248,10 @@ const ManualProductEntry = ({ onProductAdded }) => {
               Adding Product...
             </>
           ) : (
-            <>➕ Add to Cart</>
+            <>
+              <FontAwesomeIcon icon={faCartPlus} style={{ marginRight: "0.5rem" }} />
+              Add to Cart
+            </>
           )}
         </button>
       </form>
@@ -248,7 +281,7 @@ const ManualProductEntry = ({ onProductAdded }) => {
                   gap: "0.5rem",
                 }}
               >
-                🛒 Available Products ({filteredProducts.length})
+                <FontAwesomeIcon icon={faBasketShopping} /> Available Products ({filteredProducts.length})
               </h4>
               <button
                 onClick={() => {
@@ -258,7 +291,8 @@ const ManualProductEntry = ({ onProductAdded }) => {
                 className="nav-btn secondary"
                 style={{ fontSize: "0.75rem", padding: "0.5rem 1rem" }}
               >
-                🔄 Refresh
+                <FontAwesomeIcon icon={faArrowsRotate} style={{ marginRight: "0.5rem" }} />
+                Refresh
               </button>
             </div>
 
@@ -434,10 +468,12 @@ const ManualProductEntry = ({ onProductAdded }) => {
                           disabled={product.stock === 0}
                         >
                           {isItemInCart(product.id)
-                            ? "✅ In Cart"
+                            ? <FontAwesomeIcon icon={faCircleCheck} style={{ marginRight: "0.5rem" }} /> + " In Cart"
                             : product.stock === 0
-                              ? "❌ Out of Stock"
-                              : "➕ Add to Cart"}
+                              ? <FontAwesomeIcon icon={faCircleXmark} style={{ marginRight: "0.5rem" }} /> +
+                                " Out of Stock"
+                              : <FontAwesomeIcon icon={faCartPlus} style={{ marginRight: "0.5rem" }} /> +
+                                " Add to Cart"}
                         </button>
                       </div>
                     </motion.div>
@@ -451,7 +487,9 @@ const ManualProductEntry = ({ onProductAdded }) => {
                   >
                     {Object.keys(allProducts).length === 0 ? (
                       <>
-                        <div className="empty-state-icon">📦</div>
+                        <div className="empty-state-icon">
+                          <FontAwesomeIcon icon={faBoxOpen} />
+                        </div>
                         <h3>Loading Products...</h3>
                         <p>If products don't load, please check:</p>
                         <ul style={{ textAlign: "left", margin: "1rem 0" }}>
@@ -463,7 +501,9 @@ const ManualProductEntry = ({ onProductAdded }) => {
                       </>
                     ) : (
                       <>
-                        <div className="empty-state-icon">🔍</div>
+                        <div className="empty-state-icon">
+                          <FontAwesomeIcon icon={faMagnifyingGlass} />
+                        </div>
                         <h3>No Products Found</h3>
                         <p>Try adjusting your search or category filter.</p>
                       </>
@@ -492,25 +532,41 @@ const ManualProductEntry = ({ onProductAdded }) => {
             color: "var(--text-primary)",
           }}
         >
-          ⚡ Quick Add - Popular Items
+          <FontAwesomeIcon icon={faBoltLightning} style={{ marginRight: "0.5rem", color: "#fbbf24" }} />
+          Quick Add - Popular Items
         </h4>
 
         <div style={{ display: "grid", gap: "1rem" }}>
           {[
             {
-              title: "🍽️ Food",
+              title: (
+                <>
+                  <FontAwesomeIcon icon={faUtensils} style={{ marginRight: "0.5rem" }} />
+                  Food
+                </>
+              ),
               ids: ["FOOD001", "FOOD002", "FOOD003", "FOOD004", "FOOD005"],
             },
             {
-              title: "📱 Electronics",
+              title: (
+                <>
+                  <FontAwesomeIcon icon={faLaptop} style={{ marginRight: "0.5rem" }} />
+                  Electronics
+                </>
+              ),
               ids: ["ELEC001", "ELEC002", "ELEC003", "ELEC004", "ELEC005"],
             },
             {
-              title: "👕 Clothes",
+              title: (
+                <>
+                  <FontAwesomeIcon icon={faShirt} style={{ marginRight: "0.5rem" }} />
+                  Clothes
+                </>
+              ),
               ids: ["CLTH001", "CLTH002", "CLTH003", "CLTH004", "CLTH005"],
             },
-          ].map((category) => (
-            <div key={category.title}>
+          ].map((category, idx) => (
+            <div key={idx}>
               <h5
                 style={{
                   margin: "0 0 0.75rem 0",
@@ -545,7 +601,14 @@ const ManualProductEntry = ({ onProductAdded }) => {
                       whileTap={{ scale: isOutOfStock ? 1 : 0.95 }}
                       disabled={isOutOfStock}
                     >
-                      {isItemInCart(id) ? "✅" : isOutOfStock ? "❌" : "+"} {id}
+                      {isItemInCart(id) ? (
+                        <FontAwesomeIcon icon={faCheck} style={{ marginRight: "0.3rem" }} />
+                      ) : isOutOfStock ? (
+                        <FontAwesomeIcon icon={faTimes} style={{ marginRight: "0.3rem" }} />
+                      ) : (
+                        <FontAwesomeIcon icon={faPlus} style={{ marginRight: "0.3rem" }} />
+                      )}{" "}
+                      {id}
                       {product && ` - ₹${product.price}`}
                       {isOutOfStock && " (Out of Stock)"}
                     </motion.button>

@@ -2,6 +2,21 @@
 
 import { useState, useEffect } from "react"
 import { getAllProducts } from "../utils/productData.js"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import {
+  faMobileAlt,
+  faPenToSquare,
+  faTowerBroadcast,
+  faLock,
+  faFileLines,
+  faLink,
+  faPenNib,
+  faFlask,
+  faClipboardList,
+  faLightbulb,
+  faWrench,
+  faMagnifyingGlass,
+} from "@fortawesome/free-solid-svg-icons"
 
 const NFCWriterComponent = () => {
   const [isNFCSupported, setIsNFCSupported] = useState(false)
@@ -189,7 +204,9 @@ const NFCWriterComponent = () => {
           textAlign: "center",
         }}
       >
-        <div style={{ fontSize: "4rem", marginBottom: "1rem" }}>📱</div>
+        <div style={{ fontSize: "4rem", marginBottom: "1rem" }}>
+          <FontAwesomeIcon icon={faMobileAlt} style={{ color: "#666" }} />
+        </div>
         <h3 style={{ color: "#856404" }}>NFC Writing Not Supported</h3>
         <p style={{ color: "#666" }}>Your device or browser doesn't support NFC writing functionality.</p>
         <div style={{ fontSize: "14px", color: "#666", marginTop: "1rem", textAlign: "left" }}>
@@ -218,7 +235,10 @@ const NFCWriterComponent = () => {
       }}
     >
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
-        <h3 style={{ margin: "0", color: "#333" }}>📝 NFC Tag Writer</h3>
+        <h3 style={{ margin: "0", color: "#333" }}>
+          <FontAwesomeIcon icon={faPenToSquare} style={{ marginRight: "0.5rem" }} />
+          NFC Tag Writer
+        </h3>
         <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
           <div
             style={{
@@ -229,7 +249,8 @@ const NFCWriterComponent = () => {
               color: "white",
             }}
           >
-            📡 {isNFCSupported ? "SUPPORTED" : "NOT SUPPORTED"}
+            <FontAwesomeIcon icon={faTowerBroadcast} style={{ marginRight: "0.3rem" }} />
+            {isNFCSupported ? "SUPPORTED" : "NOT SUPPORTED"}
           </div>
           <div
             style={{
@@ -240,7 +261,8 @@ const NFCWriterComponent = () => {
               color: "white",
             }}
           >
-            🔐 {permissionGranted ? "ALLOWED" : "PENDING"}
+            <FontAwesomeIcon icon={faLock} style={{ marginRight: "0.3rem" }} />
+            {permissionGranted ? "ALLOWED" : "PENDING"}
           </div>
         </div>
       </div>
@@ -300,7 +322,10 @@ const NFCWriterComponent = () => {
               onChange={(e) => setWriteFormat(e.target.value)}
               style={{ marginRight: "0.5rem" }}
             />
-            <span>📄 Text (Product ID only) - Recommended</span>
+            <span>
+              <FontAwesomeIcon icon={faFileLines} style={{ marginRight: "0.3rem" }} />
+              Text (Product ID only) - Recommended
+            </span>
           </label>
           <label style={{ display: "flex", alignItems: "center", cursor: "pointer" }}>
             <input
@@ -311,7 +336,10 @@ const NFCWriterComponent = () => {
               onChange={(e) => setWriteFormat(e.target.value)}
               style={{ marginRight: "0.5rem" }}
             />
-            <span>🔗 URL (Web link)</span>
+            <span>
+              <FontAwesomeIcon icon={faLink} style={{ marginRight: "0.3rem" }} />
+              URL (Web link)
+            </span>
           </label>
         </div>
       </div>
@@ -365,7 +393,10 @@ const NFCWriterComponent = () => {
             border: "1px solid #dee2e6",
           }}
         >
-          <h4 style={{ margin: "0 0 0.5rem 0", color: "#333" }}>🔍 Preview - What will be written:</h4>
+          <h4 style={{ margin: "0 0 0.5rem 0", color: "#333" }}>
+            <FontAwesomeIcon icon={faMagnifyingGlass} style={{ marginRight: "0.5rem" }} />
+            Preview - What will be written:
+          </h4>
           <div style={{ fontSize: "14px", color: "#666" }}>
             <p>
               <strong>Product:</strong> {allProducts[selectedProduct]?.name}
@@ -415,7 +446,17 @@ const NFCWriterComponent = () => {
           opacity: isWriting || !selectedProduct ? 0.7 : 1,
         }}
       >
-        {isWriting ? "📝 Writing to NFC Tag..." : "📝 Write to NFC Tag"}
+        {isWriting ? (
+          <>
+            <FontAwesomeIcon icon={faPenNib} spin style={{ marginRight: "0.5rem" }} />
+            Writing to NFC Tag...
+          </>
+        ) : (
+          <>
+            <FontAwesomeIcon icon={faPenNib} style={{ marginRight: "0.5rem" }} />
+            Write to NFC Tag
+          </>
+        )}
       </button>
 
       {/* Test Button */}
@@ -435,7 +476,8 @@ const NFCWriterComponent = () => {
             marginTop: "0.5rem",
           }}
         >
-          🧪 How to Test Written Tag
+          <FontAwesomeIcon icon={faFlask} style={{ marginRight: "0.5rem" }} />
+          How to Test Written Tag
         </button>
       )}
 
@@ -453,7 +495,10 @@ const NFCWriterComponent = () => {
           color: "#0066cc",
         }}
       >
-        <h4 style={{ margin: "0 0 0.5rem 0" }}>📋 Step-by-Step Instructions:</h4>
+        <h4 style={{ margin: "0 0 0.5rem 0" }}>
+          <FontAwesomeIcon icon={faClipboardList} style={{ marginRight: "0.5rem" }} />
+          Step-by-Step Instructions:
+        </h4>
         <ol style={{ margin: "0", paddingLeft: "1.5rem" }}>
           <li>Select a product from the dropdown above</li>
           <li>Choose format (Text is recommended for reliability)</li>
@@ -465,7 +510,10 @@ const NFCWriterComponent = () => {
 
         <div style={{ marginTop: "1rem", fontSize: "12px" }}>
           <p>
-            <strong>💡 Important Tips:</strong>
+            <strong>
+              <FontAwesomeIcon icon={faLightbulb} style={{ marginRight: "0.3rem" }} />
+              Important Tips:
+            </strong>
           </p>
           <ul style={{ margin: "0.5rem 0", paddingLeft: "1.5rem" }}>
             <li>
@@ -495,7 +543,10 @@ const NFCWriterComponent = () => {
             border: "1px solid #ffeaa7",
           }}
         >
-          <strong>🔧 Troubleshooting:</strong>
+          <strong>
+            <FontAwesomeIcon icon={faWrench} style={{ marginRight: "0.3rem" }} />
+            Troubleshooting:
+          </strong>
           <ul style={{ margin: "0.5rem 0", paddingLeft: "1.5rem", fontSize: "12px" }}>
             <li>If writing fails, try a different blank tag</li>
             <li>Ensure NFC is enabled in device settings</li>

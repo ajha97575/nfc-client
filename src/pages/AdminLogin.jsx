@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
 import { useAuth } from "../utils/AuthContext.jsx"
 import toast from "react-hot-toast"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faLock, faUser, faEye, faEyeSlash, faRocket, faShieldHalved } from "@fortawesome/free-solid-svg-icons"
 import "./AdminLogin.css"
 
 const AdminLogin = () => {
@@ -75,7 +77,9 @@ const AdminLogin = () => {
             className="admin-login-header"
           >
             <div className="admin-login-logo">
-              <div className="admin-login-logo-icon">🔐</div>
+              <div className="admin-login-logo-icon">
+                <FontAwesomeIcon icon={faLock} />
+              </div>
               <h1 className="admin-login-title">Admin Login</h1>
             </div>
             <p className="admin-login-subtitle">Access your admin dashboard</p>
@@ -95,7 +99,9 @@ const AdminLogin = () => {
                 Username
               </label>
               <div className="admin-form-input-container">
-                <div className="admin-form-input-icon">👤</div>
+                <div className="admin-form-input-icon">
+                  <FontAwesomeIcon icon={faUser} />
+                </div>
                 <input
                   type="text"
                   id="username"
@@ -116,7 +122,9 @@ const AdminLogin = () => {
                 Password
               </label>
               <div className="admin-form-input-container">
-                <div className="admin-form-input-icon">🔒</div>
+                <div className="admin-form-input-icon">
+                  <FontAwesomeIcon icon={faLock} />
+                </div>
                 <input
                   type={showPassword ? "text" : "password"}
                   id="password"
@@ -134,7 +142,7 @@ const AdminLogin = () => {
                   className="admin-form-password-toggle"
                   disabled={loading}
                 >
-                  {showPassword ? "🙈" : "👁️"}
+                  {showPassword ? <FontAwesomeIcon icon={faEyeSlash} /> : <FontAwesomeIcon icon={faEye} />}
                 </button>
               </div>
             </div>
@@ -154,7 +162,9 @@ const AdminLogin = () => {
                 </div>
               ) : (
                 <div className="admin-login-button-content">
-                  <span>🚀</span>
+                  <span>
+                    <FontAwesomeIcon icon={faRocket} />
+                  </span>
                   <span>Sign In</span>
                 </div>
               )}
@@ -170,7 +180,9 @@ const AdminLogin = () => {
           >
             <p className="admin-login-footer-text">Secure admin access to Tip Tap Pay dashboard</p>
             <div className="admin-login-security-badge">
-              <span className="admin-login-security-icon">🛡️</span>
+              <span className="admin-login-security-icon">
+                <FontAwesomeIcon icon={faShieldHalved} />
+              </span>
               <span>Secured with JWT</span>
             </div>
           </motion.div>

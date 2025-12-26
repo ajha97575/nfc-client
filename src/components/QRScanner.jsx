@@ -1,157 +1,151 @@
-"use client";
+"use client"
 
-import { useEffect, useRef, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import QrScanner from "qr-scanner";
-import { useCart } from "../utils/CartContext.jsx";
-import { getProductById } from "../utils/productData.js";
-import {
-  playBeepSound,
-  playSuccessSound,
-  preloadAudio,
-} from "../utils/soundUtils.js";
-import "../styles/scanner.css";
+import { useEffect, useRef, useState } from "react"
+import { motion, AnimatePresence } from "framer-motion"
+import QrScanner from "qr-scanner"
+import { useCart } from "../utils/CartContext.jsx"
+import { getProductById } from "../utils/productData.js"
+import { playBeepSound, playSuccessSound, preloadAudio } from "../utils/soundUtils.js"
+import "../styles/scanner.css"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faCamera, faCircleXmark, faCircleCheck, faCircleExclamation } from "@fortawesome/free-solid-svg-icons"
 
 const QRScannerComponent = ({ isActive = true, onProductAdded }) => {
-  const videoRef = useRef(null);
-  const scannerRef = useRef(null);
-  const [isScanning, setIsScanning] = useState(false);
-  const [scanStatus, setScanStatus] = useState("idle");
-  const [lastScanned, setLastScanned] = useState("");
-  const [cameraError, setCameraError] = useState(false);
-  const { addItemOnce, isItemInCart } = useCart();
+  const videoRef = useRef(null)
+  const scannerRef = useRef(null)
+  const [isScanning, setIsScanning] = useState(false)
+  const [scanStatus, setScanStatus] = useState("idle")
+  const [lastScanned, setLastScanned] = useState("")
+  const [cameraError, setCameraError] = useState(false)
+  const { addItemOnce, isItemInCart } = useCart()
 
   useEffect(() => {
-    preloadAudio();
-  }, []);
+    preloadAudio()
+  }, [])
 
   useEffect(() => {
     if (!isActive) {
       if (scannerRef.current) {
-        scannerRef.current.stop();
-        scannerRef.current.destroy();
-        scannerRef.current = null;
-        setIsScanning(false);
+        scannerRef.current.stop()
+        scannerRef.current.destroy()
+        scannerRef.current = null
+        setIsScanning(false)
       }
-      return;
+      return
     }
 
     const startScanner = async () => {
       try {
         if (videoRef.current && !scannerRef.current) {
-          scannerRef.current = new QrScanner(
-            videoRef.current,
-            (result) => handleScanResult(result.data),
-            {
-              highlightScanRegion: false,
-              highlightCodeOutline: false,
-              preferredCamera: "environment",
-              maxScansPerSecond: 2,
-              returnDetailedScanResult: true,
-            }
-          );
+          scannerRef.current = new QrScanner(videoRef.current, (result) => handleScanResult(result.data), {
+            highlightScanRegion: false,
+            highlightCodeOutline: false,
+            preferredCamera: "environment",
+            maxScansPerSecond: 2,
+            returnDetailedScanResult: true,
+          })
 
-          await scannerRef.current.start();
-          setIsScanning(true);
-          setCameraError(false);
-          console.log("📷 QR Scanner started successfully");
+          await scannerRef.current.start()
+          setIsScanning(true)
+          setCameraError(false)
+          console.log("📷 QR Scanner started successfully")
         }
       } catch (error) {
-        console.error("Error starting scanner:", error);
-        setCameraError(true);
-        setIsScanning(false);
+        console.error("Error starting scanner:", error)
+        setCameraError(true)
+        setIsScanning(false)
       }
-    };
+    }
 
-    startScanner();
+    startScanner()
 
     return () => {
       if (scannerRef.current) {
-        scannerRef.current.stop();
-        scannerRef.current.destroy();
-        scannerRef.current = null;
-        setIsScanning(false);
-        console.log("📷 QR Scanner stopped");
+        scannerRef.current.stop()
+        scannerRef.current.destroy()
+        scannerRef.current = null
+        setIsScanning(false)
+        console.log("📷 QR Scanner stopped")
       }
-    };
-  }, [isActive]);
+    }
+  }, [isActive])
 
   const handleScanResult = async (data) => {
-    if (data === lastScanned) return;
+    if (data === lastScanned) return
 
-    setLastScanned(data);
-    setScanStatus("scanning");
-    playBeepSound();
+    setLastScanned(data)
+    setScanStatus("scanning")
+    playBeepSound()
 
-    console.log(`Scanning ${data}...`);
+    console.log(`Scanning ${data}...`)
 
     try {
-      const product = await getProductById(data);
+      const product = await getProductById(data)
 
       if (product) {
         if (isItemInCart(product.id)) {
           setTimeout(() => {
-            setScanStatus("duplicate");
-            console.log(`${product.name} is already in your cart!`);
+            setScanStatus("duplicate")
+            console.log(`${product.name} is already in your cart!`)
 
             setTimeout(() => {
-              setScanStatus("idle");
-              setLastScanned("");
-            }, 3000);
-          }, 500);
+              setScanStatus("idle")
+              setLastScanned("")
+            }, 3000)
+          }, 500)
         } else {
           setTimeout(() => {
-            setScanStatus("success");
-            playSuccessSound();
-            addItemOnce(product);
-            console.log(`✅ Added ${product.name} to cart!`);
+            setScanStatus("success")
+            playSuccessSound()
+            addItemOnce(product)
+            console.log(`✅ Added ${product.name} to cart!`)
 
             if (onProductAdded) {
-              onProductAdded(product);
+              onProductAdded(product)
             }
 
             setTimeout(() => {
-              setScanStatus("idle");
-              setLastScanned("");
-            }, 2000);
-          }, 500);
+              setScanStatus("idle")
+              setLastScanned("")
+            }, 2000)
+          }, 500)
         }
       } else {
         setTimeout(() => {
-          setScanStatus("error");
-          console.log(`Product ${data} not found`);
+          setScanStatus("error")
+          console.log(`Product ${data} not found`)
 
           setTimeout(() => {
-            setScanStatus("idle");
-            setLastScanned("");
-          }, 2000);
-        }, 500);
+            setScanStatus("idle")
+            setLastScanned("")
+          }, 2000)
+        }, 500)
       }
     } catch (error) {
-      console.error("Error fetching product:", error);
+      console.error("Error fetching product:", error)
       setTimeout(() => {
-        setScanStatus("error");
-        console.log("Error connecting to server");
+        setScanStatus("error")
+        console.log("Error connecting to server")
 
         setTimeout(() => {
-          setScanStatus("idle");
-          setLastScanned("");
-        }, 2000);
-      }, 500);
+          setScanStatus("idle")
+          setLastScanned("")
+        }, 2000)
+      }, 500)
     }
-  };
+  }
 
   const retryCamera = async () => {
     if (scannerRef.current) {
       try {
-        await scannerRef.current.start();
-        setIsScanning(true);
-        setCameraError(false);
+        await scannerRef.current.start()
+        setIsScanning(true)
+        setCameraError(false)
       } catch (error) {
-        console.error("Failed to restart camera:", error);
+        console.error("Failed to restart camera:", error)
       }
     }
-  };
+  }
 
   if (!isActive) {
     return (
@@ -165,16 +159,16 @@ const QRScannerComponent = ({ isActive = true, onProductAdded }) => {
           <div className="scanner-placeholder-icon">
             <motion.div
               animate={{ rotate: 360 }}
-              transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+              transition={{ duration: 3, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
             >
-              📷
+              <FontAwesomeIcon icon={faCamera} style={{ fontSize: "3rem" }} />
             </motion.div>
           </div>
           <h3>Scanner Inactive</h3>
           <p>Activate scanner to begin adding products</p>
         </div>
       </motion.div>
-    );
+    )
   }
 
   return (
@@ -184,14 +178,14 @@ const QRScannerComponent = ({ isActive = true, onProductAdded }) => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <video 
-        ref={videoRef} 
-        className="scanner-video" 
-        playsInline 
-        muted 
-        style={{ 
-          filter: isScanning ? 'none' : 'grayscale(1) blur(2px)',
-          transform: isScanning ? 'scale(1.02)' : 'scale(1)'
+      <video
+        ref={videoRef}
+        className="scanner-video"
+        playsInline
+        muted
+        style={{
+          filter: isScanning ? "none" : "grayscale(1) blur(2px)",
+          transform: isScanning ? "scale(1.02)" : "scale(1)",
         }}
       />
 
@@ -199,12 +193,7 @@ const QRScannerComponent = ({ isActive = true, onProductAdded }) => {
         <motion.div
           className={`scan-box ${scanStatus}`}
           animate={{
-            scale:
-              scanStatus === "scanning"
-                ? [1, 1.03, 1]
-                : scanStatus === "success"
-                ? [1, 1.1, 1]
-                : 1,
+            scale: scanStatus === "scanning" ? [1, 1.03, 1] : scanStatus === "success" ? [1, 1.1, 1] : 1,
           }}
           transition={{ duration: 0.5 }}
         >
@@ -225,7 +214,9 @@ const QRScannerComponent = ({ isActive = true, onProductAdded }) => {
             exit={{ opacity: 0 }}
           >
             <div className="camera-error-content">
-              <div className="error-icon">❌</div>
+              <div className="error-icon">
+                <FontAwesomeIcon icon={faCircleXmark} />
+              </div>
               <h3>Camera Access Required</h3>
               <p>Please allow camera permissions to use the scanner</p>
               <button className="retry-button" onClick={retryCamera}>
@@ -252,19 +243,25 @@ const QRScannerComponent = ({ isActive = true, onProductAdded }) => {
             )}
             {scanStatus === "success" && (
               <div className="status-content">
-                <div className="status-icon">✅</div>
+                <div className="status-icon">
+                  <FontAwesomeIcon icon={faCircleCheck} style={{ color: "var(--secondary-color)" }} />
+                </div>
                 <p>Product added to cart!</p>
               </div>
             )}
             {scanStatus === "error" && (
               <div className="status-content">
-                <div className="status-icon">❌</div>
+                <div className="status-icon">
+                  <FontAwesomeIcon icon={faCircleXmark} style={{ color: "var(--danger-color)" }} />
+                </div>
                 <p>Product not found</p>
               </div>
             )}
             {scanStatus === "duplicate" && (
               <div className="status-content">
-                <div className="status-icon">⚠️</div>
+                <div className="status-icon">
+                  <FontAwesomeIcon icon={faCircleExclamation} style={{ color: "var(--warning-color)" }} />
+                </div>
                 <p>Product already in cart</p>
               </div>
             )}
@@ -274,14 +271,13 @@ const QRScannerComponent = ({ isActive = true, onProductAdded }) => {
 
       <div className="scanner-footer">
         <div className="scanner-instruction">
-          {isScanning 
-            ? "Align QR code within the frame" 
-            : cameraError 
-              ? "Camera access needed" 
-              : "Initializing camera..."
-          }
+          {isScanning
+            ? "Align QR code within the frame"
+            : cameraError
+              ? "Camera access needed"
+              : "Initializing camera..."}
         </div>
-        
+
         <div className="scanner-indicators">
           <div className={`indicator ${isScanning ? "active" : ""}`}>
             <span className="indicator-dot"></span>
@@ -294,7 +290,7 @@ const QRScannerComponent = ({ isActive = true, onProductAdded }) => {
         </div>
       </div>
     </motion.div>
-  );
-};
+  )
+}
 
-export default QRScannerComponent;
+export default QRScannerComponent

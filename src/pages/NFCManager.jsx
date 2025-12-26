@@ -4,6 +4,20 @@ import { useState } from "react"
 import { Link } from "react-router-dom"
 import NFCWriterComponent from "../components/NFCWriter.jsx"
 import NFCReaderComponent from "../components/NFCReader.jsx"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import {
+  faMobileAlt,
+  faArrowLeft,
+  faShoppingCart,
+  faFilePen,
+  faTags,
+  faFlask,
+  fa1,
+  fa2,
+  fa3,
+  fa4,
+  faRocket,
+} from "@fortawesome/free-solid-svg-icons"
 
 const NFCManager = () => {
   const [activeTab, setActiveTab] = useState("writer") // "writer" or "reader"
@@ -11,30 +25,32 @@ const NFCManager = () => {
   return (
     <div className="container">
       <div className="header" style={{ background: "linear-gradient(135deg, #2196F3 0%, #1976D2 100%)" }}>
-        <h1>📱 NFC Tag Manager</h1>
+        <h1>
+          <FontAwesomeIcon icon={faMobileAlt} /> NFC Tag Manager
+        </h1>
         <p>Create and test NFC tags for your products</p>
       </div>
 
       <div className="nav-buttons">
         <Link to="/" className="nav-btn secondary">
-          ← Back to Home
+          <FontAwesomeIcon icon={faArrowLeft} /> Back to Home
         </Link>
         <Link to="/scanner" className="nav-btn">
-          🛒 Go to Scanner
+          <FontAwesomeIcon icon={faShoppingCart} /> Go to Scanner
         </Link>
         <button
           onClick={() => setActiveTab("writer")}
           className="nav-btn"
           style={{ background: activeTab === "writer" ? "#4CAF50" : "#2196f3" }}
         >
-          📝 Write Tags
+          <FontAwesomeIcon icon={faFilePen} /> Write Tags
         </button>
         <button
           onClick={() => setActiveTab("reader")}
           className="nav-btn"
           style={{ background: activeTab === "reader" ? "#4CAF50" : "#FF9800" }}
         >
-          📱 Test Reader
+          <FontAwesomeIcon icon={faMobileAlt} /> Test Reader
         </button>
       </div>
 
@@ -53,7 +69,9 @@ const NFCManager = () => {
               margin: "2rem 0",
             }}
           >
-            <h3 style={{ color: "#333", marginBottom: "1rem" }}>🏷️ About NFC Tags</h3>
+            <h3 style={{ color: "#333", marginBottom: "1rem" }}>
+              <FontAwesomeIcon icon={faTags} /> About NFC Tags
+            </h3>
 
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "2rem" }}>
               <div>
@@ -114,7 +132,9 @@ const NFCManager = () => {
               textAlign: "center",
             }}
           >
-            <h3 style={{ color: "#333", marginBottom: "1rem" }}>🧪 Test Your NFC Tags</h3>
+            <h3 style={{ color: "#333", marginBottom: "1rem" }}>
+              <FontAwesomeIcon icon={faFlask} /> Test Your NFC Tags
+            </h3>
             <p style={{ color: "#666", marginBottom: "1rem" }}>
               Use this reader to test NFC tags you've created. Tap any programmed tag to see if it works correctly.
             </p>
@@ -142,11 +162,15 @@ const NFCManager = () => {
           margin: "2rem 0",
         }}
       >
-        <h3 style={{ color: "#333", marginBottom: "1.5rem" }}>🚀 Complete Setup Guide</h3>
+        <h3 style={{ color: "#333", marginBottom: "1.5rem" }}>
+          <FontAwesomeIcon icon={faRocket} /> Complete Setup Guide
+        </h3>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "1.5rem" }}>
           <div style={{ padding: "1rem", background: "#f8f9fa", borderRadius: "8px", border: "1px solid #dee2e6" }}>
-            <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>1️⃣</div>
+            <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>
+              <FontAwesomeIcon icon={fa1} />
+            </div>
             <h4 style={{ color: "#333", marginBottom: "0.5rem" }}>Buy NFC Tags</h4>
             <p style={{ fontSize: "14px", color: "#666" }}>
               Purchase NTAG213 or NTAG215 tags online. Get sticker-type tags for easy application.
@@ -154,7 +178,9 @@ const NFCManager = () => {
           </div>
 
           <div style={{ padding: "1rem", background: "#f8f9fa", borderRadius: "8px", border: "1px solid #dee2e6" }}>
-            <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>2️⃣</div>
+            <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>
+              <FontAwesomeIcon icon={fa2} />
+            </div>
             <h4 style={{ color: "#333", marginBottom: "0.5rem" }}>Program Tags</h4>
             <p style={{ fontSize: "14px", color: "#666" }}>
               Use the NFC Writer above to program each tag with a product ID.
@@ -162,7 +188,9 @@ const NFCManager = () => {
           </div>
 
           <div style={{ padding: "1rem", background: "#f8f9fa", borderRadius: "8px", border: "1px solid #dee2e6" }}>
-            <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>3️⃣</div>
+            <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>
+              <FontAwesomeIcon icon={fa3} />
+            </div>
             <h4 style={{ color: "#333", marginBottom: "0.5rem" }}>Apply to Products</h4>
             <p style={{ fontSize: "14px", color: "#666" }}>
               Stick tags on products, shelves, or create a product catalog with tags.
@@ -170,7 +198,9 @@ const NFCManager = () => {
           </div>
 
           <div style={{ padding: "1rem", background: "#f8f9fa", borderRadius: "8px", border: "1px solid #dee2e6" }}>
-            <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>4️⃣</div>
+            <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>
+              <FontAwesomeIcon icon={fa4} />
+            </div>
             <h4 style={{ color: "#333", marginBottom: "0.5rem" }}>Test & Deploy</h4>
             <p style={{ fontSize: "14px", color: "#666" }}>
               Test tags with the reader above, then let customers use them for shopping.
